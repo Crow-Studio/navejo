@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 const MagicLinkLogin = () => {
   const [email, setEmail] = useState('');
@@ -15,28 +16,37 @@ const MagicLinkLogin = () => {
     setError('');
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Use Better Auth's magic link functionality
+      const response = await authClient.signIn.magicLink({
+        email,
+        callbackURL: '/dashboard', // Redirect to dashboard after successful sign-in
+      });
       
-      // Mock success
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to send magic link');
+      }
+      
       setIsEmailSent(true);
-      setEmail('');
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
+      // Don't clear email here so user can see which email was used
+    } catch (err: any) {
+      console.error('Magic link error:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-interface KeyPressEvent {
-    key: string;
-}
-
-const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
-        handleSubmit();
+      handleSubmit();
     }
-};
+  };
+
+  const handleTryDifferentEmail = () => {
+    setIsEmailSent(false);
+    setEmail('');
+    setError('');
+  };
 
   if (isEmailSent) {
     return (
@@ -48,19 +58,22 @@ const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
             </div>
             
             <h2 className="text-2xl font-light mb-4">Check Your Email</h2>
+            <p className="text-white/70 mb-2 leading-relaxed">
+              We&apos;ve sent a magic link to:
+            </p>
+            <p className="text-white font-medium mb-6">
+              {email}
+            </p>
             <p className="text-white/70 mb-6 leading-relaxed">
-              We've sent a magic link to your email address. Click the link to sign in to your account.
+              Click the link in your email to sign in. The link will expire in 10 minutes.
             </p>
             
             <div className="text-sm text-white/50 mb-6">
-              Didn't receive the email? Check your spam folder or try again.
+              Didn&apos;t receive the email? Check your spam folder or try again.
             </div>
             
             <button
-              onClick={() => {
-                setIsEmailSent(false);
-                setEmail('');
-              }}
+              onClick={handleTryDifferentEmail}
               className="text-white/70 hover:text-white transition-colors duration-200 text-sm"
             >
               Try a different email
@@ -95,11 +108,12 @@ const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
                 onKeyPress={handleKeyPress}
                 className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
 
             {error && (
-              <div className="text-red-400 text-sm text-center">
+              <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
                 {error}
               </div>
             )}
@@ -125,15 +139,9 @@ const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
 
           <div className="mt-6 text-center">
             <p className="text-white/50 text-sm">
-              No passwords required. We'll send you a secure link to sign in.
+              No passwords required. We&apos;ll send you a secure link to sign in.
             </p>
           </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <p className="text-white/50 text-sm">
-            Don't have an account? The magic link will create one for you.
-          </p>
         </div>
       </div>
     </div>

@@ -9,11 +9,6 @@ const ContactSection = () => {
     message: ''
   });
 
-interface FormData {
-    name: string;
-    email: string;
-    message: string;
-}
 
 const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +36,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElemen
             Get in <span className="text-white/60">Touch</span>
           </h1>
           <p className="text-lg text-white/70 max-w-xl mx-auto">
-            Have a question or want to work together? We'd love to hear from you.
+            Have a question or want to work together? We&apos;d love to hear from you.
           </p>
         </div>
 

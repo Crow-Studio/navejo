@@ -56,7 +56,7 @@ const PricingSection = () => {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-20">
-          {pricingPlans.map((plan, index) => (
+          {pricingPlans.map((plan) => (
             <div
               key={plan.name}
               className={`relative bg-white/5 backdrop-blur-sm rounded-xl border p-8 hover:bg-white/10 transition-all duration-200 ${
@@ -127,7 +127,7 @@ const PricingSection = () => {
             Ready to organize your digital life?
           </h2>
           <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
-            Join thousands of developers and creators who've already transformed their bookmark chaos into organized knowledge.
+            Join thousands of developers and creators who&apos;ve already transformed their bookmark chaos into organized knowledge.
           </p>
           <Button className="bg-white text-black hover:bg-gray-100 uppercase px-8 py-4 text-lg font-medium">
             Start Your Free Trial
