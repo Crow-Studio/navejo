@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Mail, MessageCircle, Send } from 'lucide-react';
 
+
 const ContactSection = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,7 +27,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElemen
 };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
       
       <div className="relative z-10 px-4 md:px-8 py-20 max-w-4xl mx-auto">

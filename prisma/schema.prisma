@@ -1,0 +1,416 @@
+// Bookmark SaaS Application Schema
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== AUTHENTICATION MODELS =====
+model OauthAccount {
+  providerId     String
+  providerUserId String
+  userEmail      String
+  userName       String
+  userAvatarURL  String
+  userId         String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, providerUserId])
+  @@map("oauth_account")
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  identifier String   // Email address
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+
+  @@unique([identifier, token])
+  @@index([userId])
+}
+
+// ===== CORE USER MODEL =====
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  password           String?
+  emailVerified      Boolean             @default(false)
+  verificationCode   String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  
+  // Auth relations
+  oauthAccount       OauthAccount?
+  session            Session[]
+  verificationTokens VerificationToken[]
+  profile            Profile?
+  role               Role                @default(USER)
+  
+  // App-specific relations
+  organizations      Organization[]
+  workspaces         WorkspaceMember[]
+  folders            Folder[]
+  bookmarks          Bookmark[]
+  designAssets       DesignAsset[]
+  tags               Tag[]
+  reminders          Reminder[]
+  sharedBookmarks    SharedBookmark[]
+  bookmarkViews      BookmarkView[]
+  
+  @@index([email])
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  name        String
+  username    String?  @unique // For public profile URLs
+  imageUrl    String?  @db.Text
+  bio         String?  @db.Text
+  website     String?
+  location    String?
+  isPublic    Boolean  @default(false) // Public profile visibility
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([username])
+}
+
+enum Role {
+  ADMIN    // App owner (you)
+  USER     // Regular users
+}
+
+// ===== ORGANIZATION & WORKSPACE MODELS =====
+model Organization {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique // For URLs
+  description String?     @db.Text
+  imageUrl    String?     @db.Text
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaces  Workspace[]
+  invites     Invite[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([ownerId])
+  @@index([slug])
+}
+
+model Workspace {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String            // Unique within organization
+  description    String?           @db.Text
+  isPrivate      Boolean           @default(false)
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members        WorkspaceMember[]
+  folders        Folder[]
+  bookmarks      Bookmark[]
+  designAssets   DesignAsset[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+model WorkspaceMember {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role        WorkspaceRole   @default(MEMBER)
+  joinedAt    DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([userId, workspaceId])
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+model Invite {
+  id             String       @id @default(cuid())
+  email          String
+  token          String       @unique
+  role           WorkspaceRole @default(MEMBER)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workspaceId    String?      // Optional: invite to specific workspace
+  invitedById    String?      // Who sent the invite
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([token])
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ===== BOOKMARK SYSTEM =====
+model Folder {
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  color       String?   // Hex color for UI
+  icon        String?   // Icon identifier
+  parentId    String?   // For nested folders
+  parent      Folder?   @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Folder[]  @relation("FolderHierarchy")
+  
+  // Ownership
+  userId      String?   // Personal folder
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?   // Workspace folder
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Content
+  bookmarks   Bookmark[]
+  designAssets DesignAsset[]
+  
+  isDefault   Boolean   @default(false) // Default folders (e.g., "Unsorted")
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([parentId])
+}
+
+model Bookmark {
+  id          String    @id @default(cuid())
+  title       String
+  url         String    @db.Text
+  description String?   @db.Text
+  
+  // Auto-extracted metadata
+  favicon     String?   @db.Text
+  imageUrl    String?   @db.Text // Preview image
+  siteName    String?
+  author      String?
+  publishedAt DateTime?
+  
+  // Organization
+  folderId    String?
+  folder      Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  tags        BookmarkTag[]
+  
+  // Ownership & Privacy
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?   // If in workspace
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  isPrivate   Boolean   @default(true)
+  isArchived  Boolean   @default(false)
+  isFavorite  Boolean   @default(false)
+  
+  // Sharing & Analytics
+  shares      SharedBookmark[]
+  views       BookmarkView[]
+  viewCount   Int       @default(0)
+  
+  // Reminders & Notes
+  reminders   Reminder[]
+  notes       String?   @db.Text
+  lastViewedAt DateTime?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([folderId])
+  @@index([isPrivate])
+  @@index([createdAt])
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String
+  color     String?      // Hex color
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookmarks BookmarkTag[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([name, userId])
+  @@index([userId])
+}
+
+model BookmarkTag {
+  id         String   @id @default(cuid())
+  bookmarkId String
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  tagId      String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([bookmarkId, tagId])
+  @@index([bookmarkId])
+  @@index([tagId])
+}
+
+// ===== DESIGN ASSETS =====
+model DesignAsset {
+  id          String    @id @default(cuid())
+  filename    String
+  originalName String
+  url         String    @db.Text
+  thumbnailUrl String?  @db.Text
+  fileSize    Int       // in bytes
+  mimeType    String
+  width       Int?
+  height      Int?
+  
+  // Organization
+  folderId    String?
+  folder      Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  
+  // Ownership
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  description String?   @db.Text
+  tags        String[]  // Simple string array for image tags
+  isPrivate   Boolean   @default(true)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([folderId])
+}
+
+// ===== SHARING SYSTEM =====
+model SharedBookmark {
+  id         String   @id @default(cuid())
+  token      String   @unique // Public sharing token
+  bookmarkId String
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  sharedById String
+  sharedBy   User     @relation(fields: [sharedById], references: [id], onDelete: Cascade)
+  
+  // Sharing settings
+  allowComments Boolean  @default(false)
+  expiresAt     DateTime?
+  password      String?  // Optional password protection
+  
+  // Analytics
+  viewCount     Int      @default(0)
+  lastViewedAt  DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([bookmarkId])
+  @@index([sharedById])
+  @@index([token])
+}
+
+model BookmarkView {
+  id         String   @id @default(cuid())
+  bookmarkId String
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  userId     String?  // Null for anonymous views
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress  String?
+  userAgent  String?  @db.Text
+  referer    String?  @db.Text
+  viewedAt   DateTime @default(now())
+
+  @@index([bookmarkId])
+  @@index([userId])
+  @@index([viewedAt])
+}
+
+// ===== REMINDER SYSTEM =====
+model Reminder {
+  id           String        @id @default(cuid())
+  title        String
+  message      String?       @db.Text
+  scheduledFor DateTime
+  
+  // What to remind about
+  bookmarkId   String?
+  bookmark     Bookmark?     @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  
+  // Reminder settings
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         ReminderType  @default(REVIEW)
+  frequency    ReminderFrequency @default(ONCE)
+  isActive     Boolean       @default(true)
+  
+  // Tracking
+  sentAt       DateTime?
+  status       ReminderStatus @default(PENDING)
+  attempts     Int           @default(0)
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([bookmarkId])
+  @@index([scheduledFor])
+  @@index([status])
+}
+
+enum ReminderType {
+  REVIEW      // Review old bookmarks
+  DEADLINE    // Custom deadline reminder
+  WEEKLY      // Weekly bookmark summary
+  MONTHLY     // Monthly bookmark summary
+}
+
+enum ReminderFrequency {
+  ONCE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
