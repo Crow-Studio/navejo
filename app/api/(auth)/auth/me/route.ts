@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import { getCurrentSession } from '@/lib/server/session'
 
@@ -19,7 +18,7 @@ export async function GET() {
     // Split by spaces and capitalize each word
     const formattedName = cleanName
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
     firstName = formattedName;
   }
