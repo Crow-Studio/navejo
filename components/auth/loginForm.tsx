@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Mail, ArrowRight, CheckCircle, Github } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -11,25 +11,6 @@ const AuthLogin = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-
-  // Check for magic link token or OAuth success in URL params on component mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const success = urlParams.get('success');
-    const error = urlParams.get('error');
-    
-    if (token) {
-      // Handle magic link token validation
-      validateMagicToken(token);
-    } else if (success === 'true') {
-      // Handle OAuth success callback
-      handleSuccessfulLogin();
-    } else if (error) {
-      // Handle OAuth or other errors
-      handleAuthError(error);
-    }
-  }, []);
 
   const handleAuthError = (errorType: string) => {
     let errorMessage = '';
@@ -69,7 +50,22 @@ const AuthLogin = () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   };
 
-  const validateMagicToken = async (token: string) => {
+  const handleSuccessfulLogin = useCallback(() => {
+    toast.success('Successfully signed in!', {
+      description: 'Welcome to Navejo. Redirecting to dashboard...',
+      duration: 3000,
+    });
+    
+    // Clear any URL parameters
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Redirect to dashboard after a short delay
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 1500);
+  }, [router]);
+
+  const validateMagicToken = useCallback(async (token: string) => {
     setIsLoading(true);
     
     try {
@@ -89,8 +85,8 @@ const AuthLogin = () => {
 
       // Token is valid, handle successful login
       handleSuccessfulLogin();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Magic link validation failed';
+    } catch (_err) {
+      const errorMessage = _err instanceof Error ? _err.message : 'Magic link validation failed';
       setError(errorMessage);
       toast.error('Login Failed', {
         description: errorMessage,
@@ -99,7 +95,26 @@ const AuthLogin = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [handleSuccessfulLogin]);
+
+  // Check for magic link token or OAuth success in URL params on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+    
+    if (token) {
+      // Handle magic link token validation
+      validateMagicToken(token);
+    } else if (success === 'true') {
+      // Handle OAuth success callback
+      handleSuccessfulLogin();
+    } else if (error) {
+      // Handle OAuth or other errors
+      handleAuthError(error);
+    }
+  }, [validateMagicToken, handleSuccessfulLogin]);
 
   const handleMagicLinkSubmit = async () => {
     if (!email) return;
@@ -127,8 +142,8 @@ const AuthLogin = () => {
         description: 'Check your email for the login link.',
         duration: 5000,
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
+    } catch (_err) {
+      const errorMessage = _err instanceof Error ? _err.message : 'Something went wrong';
       setError(errorMessage);
       toast.error('Failed to send magic link', {
         description: errorMessage,
@@ -158,7 +173,7 @@ const AuthLogin = () => {
       });
       // Redirect to your Google OAuth endpoint
       window.location.href = '/api/auth/google';
-    } catch (err) {
+    } catch (_err) {
       const errorMessage = 'Failed to initiate Google login';
       setError(errorMessage);
       toast.error('Google Login Failed', {
@@ -175,7 +190,7 @@ const AuthLogin = () => {
       });
       // Redirect to your GitHub OAuth endpoint
       window.location.href = '/api/auth/github';
-    } catch (err) {
+    } catch (_err) {
       const errorMessage = 'Failed to initiate GitHub login';
       setError(errorMessage);
       toast.error('GitHub Login Failed', {
@@ -183,21 +198,6 @@ const AuthLogin = () => {
         duration: 4000,
       });
     }
-  };
-
-  const handleSuccessfulLogin = () => {
-    toast.success('Successfully signed in!', {
-      description: 'Welcome to Navejo. Redirecting to dashboard...',
-      duration: 3000,
-    });
-    
-    // Clear any URL parameters
-    window.history.replaceState({}, document.title, window.location.pathname);
-    
-    // Redirect to dashboard after a short delay
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 1500);
   };
 
   const handleRedirectToHome = () => {

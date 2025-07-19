@@ -4,6 +4,25 @@ import { github } from '@/lib/server/oauth';
 import { prisma } from '@/lib/server/db';
 import { generateSessionToken, createSession, setSessionTokenCookie } from '@/lib/server/session';
 
+// Define types for GitHub API responses
+interface GitHubUser {
+  id: number;
+  login: string;
+  name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  blog: string | null;
+  location: string | null;
+}
+
+interface GitHubEmail {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+  visibility: string | null;
+}
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -28,7 +47,7 @@ export async function GET(request: Request) {
       throw new Error('Failed to fetch user info from GitHub');
     }
 
-    const githubUser = await userResponse.json();
+    const githubUser: GitHubUser = await userResponse.json();
 
     // Fetch user email (GitHub doesn't always include email in user endpoint)
     const emailResponse = await fetch('https://api.github.com/user/emails', {
@@ -40,8 +59,8 @@ export async function GET(request: Request) {
 
     let userEmail = githubUser.email;
     if (!userEmail && emailResponse.ok) {
-      const emails = await emailResponse.json();
-      const primaryEmail = emails.find((email: any) => email.primary);
+      const emails: GitHubEmail[] = await emailResponse.json();
+      const primaryEmail = emails.find((email: GitHubEmail) => email.primary);
       userEmail = primaryEmail?.email || emails[0]?.email;
     }
 
