@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, ArrowRight, CheckCircle, Github } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import GrainOverlay from '@/components/shared/GrainOverlay';
 
 const AuthLogin = () => {
   const [email, setEmail] = useState('');
@@ -208,7 +209,8 @@ const AuthLogin = () => {
 
   if (isEmailSent) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
+        <GrainOverlay/>
         <div className="max-w-md w-full text-center">
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">

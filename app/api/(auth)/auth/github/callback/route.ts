@@ -8,7 +8,6 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const state = url.searchParams.get('state');
 
     if (!code) {
       return NextResponse.redirect(new URL('/login?error=no_code', request.url));
