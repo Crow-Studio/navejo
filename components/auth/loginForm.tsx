@@ -1,14 +1,12 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Mail, ArrowRight, CheckCircle, Github } from 'lucide-react';
+import { Github } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import GrainOverlay from '@/components/shared/GrainOverlay';
 
 const AuthLogin = () => {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -23,15 +21,6 @@ const AuthLogin = () => {
         break;
       case 'no_email':
         errorMessage = 'Could not retrieve email from OAuth provider';
-        break;
-      case 'no_token':
-        errorMessage = 'Magic link token missing';
-        break;
-      case 'invalid_token':
-        errorMessage = 'Invalid magic link token';
-        break;
-      case 'expired_token':
-        errorMessage = 'Magic link has expired';
         break;
       case 'verification_failed':
         errorMessage = 'Verification failed';
@@ -65,106 +54,20 @@ const AuthLogin = () => {
     }, 1500);
   }, [router]);
 
-  const validateMagicToken = useCallback(async (token: string) => {
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid magic link');
-      }
-
-      // Token is valid, handle successful login
-      handleSuccessfulLogin();
-    } catch (_err) {
-      const errorMessage = _err instanceof Error ? _err.message : 'Magic link validation failed';
-      setError(errorMessage);
-      toast.error('Login Failed', {
-        description: errorMessage,
-        duration: 4000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [handleSuccessfulLogin]);
-
-  // Check for magic link token or OAuth success in URL params on component mount
+  // Check for OAuth success or errors in URL params on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
     const success = urlParams.get('success');
     const error = urlParams.get('error');
     
-    if (token) {
-      // Handle magic link token validation
-      validateMagicToken(token);
-    } else if (success === 'true') {
+    if (success === 'true') {
       // Handle OAuth success callback
       handleSuccessfulLogin();
     } else if (error) {
       // Handle OAuth or other errors
       handleAuthError(error);
     }
-  }, [validateMagicToken, handleSuccessfulLogin]);
-
-  const handleMagicLinkSubmit = async () => {
-    if (!email) return;
-    
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      const response = await fetch('/api/auth/magic-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send magic link');
-      }
-
-      setIsEmailSent(true);
-      toast.success('Magic link sent successfully!', {
-        description: 'Check your email for the login link.',
-        duration: 5000,
-      });
-    } catch (_err) {
-      const errorMessage = _err instanceof Error ? _err.message : 'Something went wrong';
-      setError(errorMessage);
-      toast.error('Failed to send magic link', {
-        description: errorMessage,
-        duration: 4000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleMagicLinkSubmit();
-    }
-  };
-
-  const handleTryDifferentEmail = () => {
-    setIsEmailSent(false);
-    setEmail('');
-    setError('');
-  };
+  }, [handleSuccessfulLogin]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -207,54 +110,9 @@ const AuthLogin = () => {
     router.push('/');
   };
 
-  if (isEmailSent) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
-        <GrainOverlay/>
-        <div className="max-w-md w-full text-center">
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-8 h-8 text-green-400" />
-            </div>
-            
-            <h2 className="text-2xl font-light mb-4">Check Your Email</h2>
-            <p className="text-white/70 mb-2 leading-relaxed">
-              We&apos;ve sent a magic link to:
-            </p>
-            <p className="text-white font-medium mb-6">
-              {email}
-            </p>
-            <p className="text-white/70 mb-6 leading-relaxed">
-              Click the link in your email to sign in. The link will expire in 10 minutes.
-            </p>
-            
-            <div className="text-sm text-white/50 mb-6">
-              Didn&apos;t receive the email? Check your spam folder or try again.
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleTryDifferentEmail}
-                className="text-white/70 hover:text-white transition-colors duration-200 text-sm"
-              >
-                Try a different email
-              </button>
-              
-              <button
-                onClick={handleRedirectToHome}
-                className="text-white/50 hover:text-white/70 transition-colors duration-200 text-xs"
-              >
-                ← Back to home
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
+      <GrainOverlay/>
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
       
       <div className="relative z-10 max-w-md w-full">
@@ -291,56 +149,11 @@ const AuthLogin = () => {
               </button>
             </div>
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black text-white/50">or</span>
-              </div>
-            </div>
-
-            {/* Magic Link Section */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="w-5 h-5 text-white/40" />
-              </div>
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
-                disabled={isLoading}
-                autoComplete="email"
-              />
-            </div>
-
             {error && (
               <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
                 {error}
               </div>
             )}
-
-            <button
-              onClick={handleMagicLinkSubmit}
-              disabled={!email || isLoading}
-              className="w-full bg-white/10 text-white cursor-pointer py-3 px-4 rounded-lg font-medium hover:bg-white/20 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Sending Magic Link...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Magic Link</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
 
             {/* Back to Home Button */}
             <button

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const code = url.searchParams.get('code');
 
     if (!code) {
-      return NextResponse.redirect(new URL('/login?error=no_code', request.url));
+      return NextResponse.redirect(new URL('/auth/sign-in?error=no_code', request.url));
     }
 
     // Exchange code for tokens
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     if (!userEmail) {
-      return NextResponse.redirect(new URL('/login?error=no_email', request.url));
+      return NextResponse.redirect(new URL('/auth/sign-in?error=no_email', request.url));
     }
 
     // Check if user exists or create new user
@@ -135,7 +135,7 @@ export async function GET(request: Request) {
     
   } catch (error) {
     console.error('GitHub OAuth callback error:', error);
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/auth/sign-in', request.url);
     loginUrl.searchParams.set('error', 'oauth_failed');
     return NextResponse.redirect(loginUrl);
   }

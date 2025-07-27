@@ -1,4 +1,4 @@
-import { generateSessionToken, createSession } from "@/lib/server/session";
+import { generateSessionToken, createSession, setSessionTokenCookie } from "@/lib/server/session";
 import { google } from "@/lib/server/oauth";
 import { cookies } from "next/headers";
 import { createUser, getUserFromGoogleId } from "@/lib/server/user";
@@ -29,8 +29,11 @@ export async function GET(request: Request): Promise<Response> {
         codeVerifier: !!codeVerifier,
         stateMatch: state === storedState
       });
-      return new Response("Invalid authentication state. Please try again.", {
-        status: 400
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': '/auth/sign-in?error=verification_failed'
+        }
       });
     }
 
@@ -69,15 +72,14 @@ export async function GET(request: Request): Promise<Response> {
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.id);
 
-    // Create headers array for cookies
-    const headers = new Headers({
-      'Location': '/'
-    });
-
-    // Set session cookie
-    headers.append('Set-Cookie', `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=${session.expiresAt.toUTCString()}`);
+    // Use the setSessionTokenCookie function instead of manual cookie setting
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
 
     // Clear OAuth cookies
+    const headers = new Headers({
+      'Location': '/dashboard?success=true'
+    });
+
     headers.append('Set-Cookie', 'google_oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     headers.append('Set-Cookie', 'google_code_verifier=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
 
@@ -92,8 +94,11 @@ export async function GET(request: Request): Promise<Response> {
       name: error instanceof Error ? error.name : 'Unknown error type'
     });
 
-    return new Response("Authentication failed. Please try again.", {
-      status: 500
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': '/auth/sign-in?error=oauth_failed'
+      }
     });
   }
 }
