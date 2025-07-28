@@ -1,0 +1,36 @@
+# Robots.txt for Navejo
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /settings/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow crawling of public pages
+Allow: /
+Allow: /features
+Allow: /pricing
+Allow: /contact
+Allow: /blog/
+Allow: /help/
+Allow: /terms
+Allow: /privacy
+
+# Sitemap location
+Sitemap: https://navejo.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Block AI training bots (optional)
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /

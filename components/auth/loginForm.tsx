@@ -76,7 +76,7 @@ const AuthLogin = () => {
       });
       // Redirect to your Google OAuth endpoint
       window.location.href = '/api/auth/google';
-    } catch (_err) {
+    } catch {
       const errorMessage = 'Failed to initiate Google login';
       setError(errorMessage);
       toast.error('Google Login Failed', {
@@ -93,7 +93,7 @@ const AuthLogin = () => {
       });
       // Redirect to your GitHub OAuth endpoint
       window.location.href = '/api/auth/github';
-    } catch (_err) {
+    } catch {
       const errorMessage = 'Failed to initiate GitHub login';
       setError(errorMessage);
       toast.error('GitHub Login Failed', {

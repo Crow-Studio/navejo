@@ -2,16 +2,14 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
+  Bookmark,
   BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
+  Folder,
+  Home,
   Settings2,
-  SquareTerminal,
+  Share2,
+  Users,
+  
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -26,126 +24,168 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+interface User {
+  id: string;
+  email: string;
+}
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: User | null;
+}
+
+// Updated navigation data for Navejo
+const getNavigationData = (user?: User | null) => ({
+  user: user ? {
+    name: extractNameFromEmail(user.email),
+    email: user.email,
+    avatar: generateAvatarUrl(user.email), // Generate avatar based on email
+  } : {
+    name: "Guest",
+    email: "guest@navejo.com",
+    avatar: "/avatars/default.jpg",
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
+      name: "Navejo",
+      logo: Bookmark,
+      plan: "Navigator",
     },
   ],
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: false,
-      
+      url: "/dashboard",
+      icon: Home,
+      isActive: true,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: Bot,
+      title: "Bookmarks",
+      url: "/bookmarks",
+      icon: Bookmark,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "All Bookmarks",
+          url: "/bookmarks",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Recent",
+          url: "/bookmarks/recent",
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "Favorites",
+          url: "/bookmarks/favorites",
+        },
+        {
+          title: "Shared",
+          url: "/bookmarks/shared",
         },
       ],
     },
     {
-      title: "Board",
-      url: "#",
-      icon: BookOpen,
+      title: "Collections",
+      url: "/collections",
+      icon: Folder,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "All Collections",
+          url: "/collections",
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Create New",
+          url: "/collections/new",
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: "Shared with Me",
+          url: "/collections/shared",
+        },
+      ],
+    },
+    {
+      title: "Team",
+      url: "/team",
+      icon: Users,
+      items: [
+        {
+          title: "Members",
+          url: "/team/members",
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: "Shared Collections",
+          url: "/team/collections",
+        },
+        {
+          title: "Activity",
+          url: "/team/activity",
         },
       ],
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/settings/general",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Account",
+          url: "/settings/account",
         },
         {
           title: "Billing",
-          url: "#",
+          url: "/settings/billing",
         },
         {
-          title: "Limits",
-          url: "#",
+          title: "Import",
+          url: "/settings/import",
         },
       ],
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Frontend Resources",
+      url: "/collections/frontend",
+      icon: BookOpen,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Design Inspiration",
+      url: "/collections/design",
+      icon: Share2,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Development Tools",
+      url: "/collections/tools",
+      icon: Settings2,
     },
   ],
+});
+
+// Helper function to extract name from email
+function extractNameFromEmail(email: string): string {
+  const localPart = email.split('@')[0];
+  const cleanName = localPart
+    .replace(/[0-9._-]/g, ' ')
+    .split(' ')
+    .filter(part => part.length > 0)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+  
+  return cleanName || localPart.charAt(0).toUpperCase() + localPart.slice(1);
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+// Helper function to generate avatar URL (you can replace with your avatar service)
+function generateAvatarUrl(email: string): string {
+  // Using Gravatar as an example - replace with your preferred avatar service
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(extractNameFromEmail(email))}&background=6366f1&color=fff&size=128`;
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const data = getNavigationData(user);
+
   return (
-    <Sidebar collapsible="icon" {...props} >
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
