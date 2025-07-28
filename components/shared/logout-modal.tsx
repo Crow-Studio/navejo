@@ -58,7 +58,7 @@ export function LogoutModal({ isOpen, onClose, userName = "User" }: LogoutModalP
             variant="outline"
             onClick={handleCancel}
             disabled={isLoggingOut}
-            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="border-zinc-700 text-black bg-white hover:bg-zinc-800 hover:text-white"
           >
             Cancel
           </Button>
