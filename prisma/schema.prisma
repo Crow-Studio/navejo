@@ -133,6 +133,7 @@ model Workspace {
   folders        Folder[]
   bookmarks      Bookmark[]
   designAssets   DesignAsset[]
+  invites        Invite[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -163,6 +164,7 @@ model Invite {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   workspaceId    String?      // Optional: invite to specific workspace
+  workspace      Workspace?   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   invitedById    String?      // Who sent the invite
   expiresAt      DateTime
   acceptedAt     DateTime?
@@ -171,6 +173,7 @@ model Invite {
 
   @@index([organizationId])
   @@index([token])
+  @@index([workspaceId])
 }
 
 enum WorkspaceRole {

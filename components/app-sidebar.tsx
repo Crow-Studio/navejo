@@ -9,13 +9,13 @@ import {
   Settings2,
   Share2,
   Users,
-  
+
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { WorkspaceSwitcher } from "@/components/workspace/workspace-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -101,21 +101,13 @@ const getNavigationData = (user?: User | null) => ({
       ],
     },
     {
-      title: "Team",
-      url: "/team",
+      title: "Workspaces",
+      url: "/workspaces",
       icon: Users,
       items: [
         {
-          title: "Members",
-          url: "/team/members",
-        },
-        {
-          title: "Shared Collections",
-          url: "/team/collections",
-        },
-        {
-          title: "Activity",
-          url: "/team/activity",
+          title: "All Workspaces",
+          url: "/workspaces",
         },
       ],
     },
@@ -171,7 +163,7 @@ function extractNameFromEmail(email: string): string {
     .filter(part => part.length > 0)
     .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(' ');
-  
+
   return cleanName || localPart.charAt(0).toUpperCase() + localPart.slice(1);
 }
 
@@ -187,7 +179,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <WorkspaceSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

@@ -1,0 +1,65 @@
+name: Keep Database Alive (API)
+
+on:
+  schedule:
+    # Run every 8 minutes to keep the database active
+    - cron: '*/8 * * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  keep-db-alive-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Database Health Endpoint
+        run: |
+          echo "🔄 Pinging database health endpoint..."
+          echo "⏰ Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          
+          # Ping the health endpoint to keep database alive
+          response=$(curl -s -w "\n%{http_code}" "${{ secrets.APP_URL }}/api/health/db" || echo "000")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "📡 HTTP Status Code: $http_code"
+          echo "📊 Response Body: $body"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Database ping successful!"
+            echo "🎉 Database is healthy and active"
+          else
+            echo "❌ Database ping failed with status code: $http_code"
+            echo "🔍 Response: $body"
+            exit 1
+          fi
+
+  keep-db-alive-backup:
+    runs-on: ubuntu-latest
+    needs: keep-db-alive-api
+    if: failure() # Only run if the API ping fails
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Backup Database Ping
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "🔄 Running backup database ping via script..."
+          node scripts/keep-db-alive.js
+
+      - name: Log Backup Success
+        run: echo "✅ Backup database ping completed at $(date)"
