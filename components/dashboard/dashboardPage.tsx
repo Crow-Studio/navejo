@@ -2,6 +2,10 @@
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { cookies } from "next/headers"
 import { validateSessionToken } from "@/lib/server/session"
+import { Suspense } from "react"
+
+// Force dynamic rendering to avoid prerender issues with search params
+export const dynamic = 'force-dynamic'
 
 interface User {
   id: string;
@@ -35,9 +39,22 @@ async function getUserData(): Promise<User | null> {
   }
 }
 
+// Loading component for the suspense boundary
+function DashboardLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+    </div>
+  )
+}
+
 export default async function DashboardPage() {
   // Fetch user data on the server
   const user = await getUserData();
 
-  return <DashboardLayout user={user} />
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardLayout user={user} />
+    </Suspense>
+  )
 }
