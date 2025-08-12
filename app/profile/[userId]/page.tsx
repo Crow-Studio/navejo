@@ -95,15 +95,19 @@ async function getPublicProfile(userId: string) {
   }
 }
 
+// Updated interface for Next.js 15 - params is now a Promise
 interface PublicProfilePageProps {
-  params: {
+  params: Promise<{
     userId: string;
-  };
+  }>;
 }
 
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
+  // Await the params to get the actual values
+  const { userId } = await params;
+  
   const currentUser = await getCurrentUser();
-  const profile = await getPublicProfile(params.userId);
+  const profile = await getPublicProfile(userId);
   
   if (!profile) {
     notFound();
@@ -151,7 +155,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 This is how others see your public bookmarks. Only bookmarks marked as public are visible here.
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Share this URL: {window.location.href}
+                Share this URL with others to show your public bookmarks
               </p>
             </div>
           )}
