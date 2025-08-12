@@ -16,7 +16,7 @@ async function getCurrentUser() {
     
     const { user } = await validateSessionToken(sessionToken);
     return user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

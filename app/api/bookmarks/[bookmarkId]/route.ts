@@ -141,7 +141,7 @@ export const PATCH = withAuth(async (user, request, { params }) => {
     }
 
     // Update bookmark with transaction to handle tags
-    const updatedBookmark = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Update bookmark
       const bookmark = await tx.bookmark.update({
         where: { id: bookmarkId },

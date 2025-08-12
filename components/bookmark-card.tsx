@@ -98,7 +98,7 @@ export function BookmarkCard({
     try {
       await navigator.clipboard.writeText(bookmark.url)
       toast.success("URL copied to clipboard")
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy URL")
     }
   }
@@ -111,7 +111,7 @@ export function BookmarkCard({
       await onDelete(bookmark.id)
       toast.success("Bookmark deleted successfully")
       setShowDeleteDialog(false)
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete bookmark")
     } finally {
       setIsDeleting(false)
@@ -125,7 +125,7 @@ export function BookmarkCard({
     try {
       await onToggleFavorite(bookmark.id, !bookmark.isFavorite)
       toast.success(bookmark.isFavorite ? "Removed from favorites" : "Added to favorites")
-    } catch (error) {
+    } catch {
       toast.error("Failed to update favorite status")
     } finally {
       setIsFavoriting(false)
@@ -456,7 +456,7 @@ export function BookmarkCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Bookmark</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{bookmark.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{bookmark.title}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

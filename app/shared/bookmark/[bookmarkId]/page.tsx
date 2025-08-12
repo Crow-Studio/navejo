@@ -153,7 +153,7 @@ export default async function SharedBookmarkPage({ params }: SharedBookmarkPageP
             className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
           >
             <User className="w-4 h-4" />
-            View {displayName}'s Profile
+            View {displayName}&apos;s Profile
           </a>
         </div>
       </div>

@@ -77,7 +77,7 @@ export default async function SharedBookmarksPage() {
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
             <div className="mb-8 mt-4">
               <h1 className="text-3xl font-bold text-white mb-2">Shared Bookmarks</h1>
-              <p className="text-gray-400">Bookmarks you've shared with others</p>
+              <p className="text-gray-400">Bookmarks you&apos;ve shared with others</p>
             </div>
             
             <BookmarkManager 
