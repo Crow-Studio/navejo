@@ -74,20 +74,24 @@ async function getCollection(collectionId: string, userId: string) {
   }
 }
 
+// Updated interface for Next.js 15 - params is now a Promise
 interface CollectionPageProps {
-  params: {
+  params: Promise<{
     collectionId: string;
-  };
+  }>;
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
+  // Await the params to get the actual values
+  const { collectionId } = await params;
+  
   const user = await getUserData();
   
   if (!user) {
     redirect("/auth/signin");
   }
 
-  const collection = await getCollection(params.collectionId, user.id);
+  const collection = await getCollection(collectionId, user.id);
   
   if (!collection) {
     notFound();
