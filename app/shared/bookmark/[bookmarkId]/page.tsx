@@ -50,13 +50,15 @@ async function getSharedBookmark(bookmarkId: string) {
 }
 
 interface SharedBookmarkPageProps {
-  params: {
+  params: Promise<{
     bookmarkId: string;
-  };
+  }>;
 }
 
 export default async function SharedBookmarkPage({ params }: SharedBookmarkPageProps) {
-  const bookmark = await getSharedBookmark(params.bookmarkId);
+  // Await the params since it's now a Promise in Next.js 15
+  const { bookmarkId } = await params;
+  const bookmark = await getSharedBookmark(bookmarkId);
   
   if (!bookmark) {
     notFound();
