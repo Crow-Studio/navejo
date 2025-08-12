@@ -1,9 +1,11 @@
 // components/dashboard/DashboardContent.tsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bookmark, Folder, Users, TrendingUp, Clock, Share2, Plus } from 'lucide-react';
 import { CreateWorkspaceDrawer } from '@/components/workspace/create-workspace-drawer';
+import { useBookmarkCreation } from '@/components/bookmark-creation-provider';
+import type { DashboardStats } from '@/app/api/dashboard/stats/route';
 
 interface DashboardContentProps {
   className?: string;
@@ -74,47 +76,84 @@ const RecentBookmark: React.FC<RecentBookmarkProps> = ({ title, collection, time
 };
 
 const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) => {
-  // Mock data - replace with real data from your API
-  const stats = {
-    totalBookmarks: 247,
-    collections: 12,
-    sharedBookmarks: 34,
-    weeklyBookmarks: 18
+  const { openBookmarkDialog } = useBookmarkCreation();
+  const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/dashboard/stats');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+        
+        const data: DashboardStats = await response.json();
+        setDashboardData(data);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Helper function to format time ago
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMs = now.getTime() - new Date(date).getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    } else if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    } else {
+      const diffInWeeks = Math.floor(diffInDays / 7);
+      return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`;
+    }
   };
 
-  const recentBookmarks = [
-    {
-      title: "React Server Components Guide",
-      url: "https://nextjs.org/docs",
-      collection: "React Resources",
-      timeAgo: "2 hours ago"
-    },
-    {
-      title: "CSS Grid Complete Guide",
-      url: "https://css-tricks.com/snippets/css/complete-guide-grid/",
-      collection: "CSS & Design",
-      timeAgo: "5 hours ago"
-    },
-    {
-      title: "TypeScript Best Practices",
-      url: "https://typescript-guide.com",
-      collection: "Development",
-      timeAgo: "1 day ago"
-    },
-    {
-      title: "Figma Design System Template",
-      url: "https://figma.com/template",
-      collection: "Design Tools",
-      timeAgo: "2 days ago"
-    }
-  ];
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-xl p-6 border animate-pulse" style={{ backgroundColor: '#080808', borderColor: '#000000' }}>
+              <div className="h-20 bg-gray-800 rounded"></div>
+            </div>
+          ))}
+        </div>
+        <div className="text-center py-8" style={{ color: '#f2f2f2' }}>
+          Loading dashboard data...
+        </div>
+      </div>
+    );
+  }
 
-  const topCollections = [
-    { name: "React Resources", count: 45 },
-    { name: "CSS & Design", count: 32 },
-    { name: "Development Tools", count: 28 },
-    { name: "UI/UX Inspiration", count: 24 }
-  ];
+  // Show error state
+  if (error || !dashboardData) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <div className="text-center py-8" style={{ color: '#f2f2f2' }}>
+          {error || 'Failed to load dashboard data'}
+        </div>
+      </div>
+    );
+  }
+
+  const { totalBookmarks, collections, sharedBookmarks, weeklyBookmarks, recentBookmarks, topCollections } = dashboardData;
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -122,31 +161,23 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) =
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Bookmarks"
-          value={stats.totalBookmarks}
+          value={totalBookmarks}
           icon={<Bookmark className="w-5 h-5" />}
-          trend="+12%"
-          trendUp={true}
         />
         <StatCard
           title="Collections"
-          value={stats.collections}
+          value={collections}
           icon={<Folder className="w-5 h-5" />}
-          trend="+2"
-          trendUp={true}
         />
         <StatCard
           title="Shared Bookmarks"
-          value={stats.sharedBookmarks}
+          value={sharedBookmarks}
           icon={<Share2 className="w-5 h-5" />}
-          trend="+8%"
-          trendUp={true}
         />
         <StatCard
           title="This Week"
-          value={stats.weeklyBookmarks}
+          value={weeklyBookmarks}
           icon={<Clock className="w-5 h-5" />}
-          trend="-3%"
-          trendUp={false}
         />
       </div>
 
@@ -160,18 +191,33 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) =
           <div className="p-6 border-b" style={{ borderColor: '#000000' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold" style={{ color: '#ffffff' }}>Recent Bookmarks</h3>
-              <button 
+              <a 
+                href="/bookmarks"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: '#f2f2f2' }}
               >
                 View all
-              </button>
+              </a>
             </div>
           </div>
           <div className="p-6 space-y-2">
-            {recentBookmarks.map((bookmark, index) => (
-              <RecentBookmark key={index} {...bookmark} />
-            ))}
+            {recentBookmarks.length > 0 ? (
+              recentBookmarks.map((bookmark) => (
+                <RecentBookmark 
+                  key={bookmark.id} 
+                  title={bookmark.title}
+                  url={bookmark.url}
+                  collection={bookmark.folder?.name || 'Unsorted'}
+                  timeAgo={formatTimeAgo(bookmark.createdAt)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8" style={{ color: '#f2f2f2' }}>
+                <Bookmark className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No bookmarks yet</p>
+                <p className="text-xs mt-1">Create your first bookmark to get started</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -184,20 +230,28 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) =
             <h3 className="text-lg font-semibold" style={{ color: '#ffffff' }}>Top Collections</h3>
           </div>
           <div className="p-6 space-y-4">
-            {topCollections.map((collection, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <div 
-                  className="w-10 h-10 border rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: '#000000', borderColor: '#020202' }}
-                >
-                  <Folder className="w-5 h-5" style={{ color: '#ffffff' }} />
+            {topCollections.length > 0 ? (
+              topCollections.map((collection) => (
+                <div key={collection.id} className="flex items-center space-x-3">
+                  <div 
+                    className="w-10 h-10 border rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: '#000000', borderColor: '#020202' }}
+                  >
+                    <Folder className="w-5 h-5" style={{ color: '#ffffff' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{collection.name}</p>
+                    <p className="text-xs" style={{ color: '#f2f2f2' }}>{collection.count} bookmark{collection.count !== 1 ? 's' : ''}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{collection.name}</p>
-                  <p className="text-xs" style={{ color: '#f2f2f2' }}>{collection.count} bookmarks</p>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8" style={{ color: '#f2f2f2' }}>
+                <Folder className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No collections yet</p>
+                <p className="text-xs mt-1">Organize your bookmarks into collections</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -207,6 +261,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) =
         <button 
           className="p-6 rounded-xl hover:bg-[#f2f2f2] transition-all duration-200"
           style={{ backgroundColor: '#ffffff', color: '#000000' }}
+          onClick={() => openBookmarkDialog()}
         >
           <div className="flex items-center space-x-3">
             <Plus className="w-6 h-6" />
@@ -245,6 +300,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "" }) =
           </button>
         </CreateWorkspaceDrawer>
       </div>
+
+
     </div>
   );
 };

@@ -31,6 +31,7 @@ interface User {
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: User | null;
+  workspaceId?: string;
 }
 
 // Updated navigation data for Navejo
@@ -173,16 +174,16 @@ function generateAvatarUrl(email: string): string {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(extractNameFromEmail(email))}&background=6366f1&color=fff&size=128`;
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, workspaceId, ...props }: AppSidebarProps) {
   const data = getNavigationData(user);
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <WorkspaceSwitcher />
+        <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} workspaceId={workspaceId} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

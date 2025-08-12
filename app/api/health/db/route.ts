@@ -6,17 +6,17 @@ import { prisma } from "@/lib/server/db";
 export async function GET() {
   try {
     const startTime = Date.now();
-    
+
     // Perform lightweight database operations to keep connection alive
     const [userCount, organizationCount, workspaceCount] = await Promise.all([
       prisma.user.count(),
       prisma.organization.count(),
       prisma.workspace.count()
     ]);
-    
+
     const endTime = Date.now();
     const responseTime = endTime - startTime;
-    
+
     const healthData = {
       status: "healthy",
       timestamp: new Date().toISOString(),
@@ -35,15 +35,15 @@ export async function GET() {
         region: "eu-west-1"
       }
     };
-    
+
     console.log('✅ Database health check successful:', {
       responseTime: `${responseTime}ms`,
       userCount,
       organizationCount,
       workspaceCount
     });
-    
-    return NextResponse.json(healthData, { 
+
+    return NextResponse.json(healthData, {
       status: 200,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -51,10 +51,10 @@ export async function GET() {
         'Expires': '0'
       }
     });
-    
+
   } catch (error) {
     console.error('❌ Database health check failed:', error);
-    
+
     const errorData = {
       status: "unhealthy",
       timestamp: new Date().toISOString(),
@@ -68,8 +68,8 @@ export async function GET() {
         region: "eu-west-1"
       }
     };
-    
-    return NextResponse.json(errorData, { 
+
+    return NextResponse.json(errorData, {
       status: 503,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',

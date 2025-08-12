@@ -1,6 +1,8 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, Plus, type LucideIcon } from "lucide-react"
+import { useBookmarkCreation } from "@/components/bookmark-creation-provider"
+import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help"
 
 import {
   Collapsible,
@@ -17,9 +19,11 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 
 export function NavMain({
   items,
+  workspaceId,
 }: {
   items: {
     title: string
@@ -31,10 +35,32 @@ export function NavMain({
       url: string
     }[]
   }[]
+  workspaceId?: string
 }) {
+  const { openBookmarkDialog } = useBookmarkCreation()
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      
+      {/* Quick Bookmark Creation Button */}
+      <div className="px-2 pb-2 space-y-2">
+        <Button
+          onClick={() => openBookmarkDialog(undefined, workspaceId)}
+          className="w-full justify-start gap-2 h-8 text-xs font-medium"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          New Bookmark
+          <span className="ml-auto text-xs opacity-60">⌘B</span>
+        </Button>
+        
+        {/* Keyboard Shortcuts Help */}
+        <div className="px-1">
+          <KeyboardShortcutsHelp />
+        </div>
+      </div>
+      
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
