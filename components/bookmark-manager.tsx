@@ -40,10 +40,26 @@ export function BookmarkManager({
   emptyDescription
 }: BookmarkManagerProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>(initialBookmarks)
+  
+  // Debug state changes
+  useEffect(() => {
+    console.log('Bookmarks state changed:', bookmarks.length, 'bookmarks')
+  }, [bookmarks])
   const [isLoading, setIsLoading] = useState(false)
   const [editingBookmark, setEditingBookmark] = useState<BookmarkData | null>(null)
   const [sharingBookmark, setSharingBookmark] = useState<BookmarkData | null>(null)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+
+  // Debug component lifecycle
+  useEffect(() => {
+    console.log('BookmarkManager mounted with props:', {
+      userId, workspaceId, folderId, filter, initialBookmarks: initialBookmarks.length
+    })
+    
+    return () => {
+      console.log('BookmarkManager unmounting')
+    }
+  }, [])
 
   // Fetch bookmarks
   const fetchBookmarks = useCallback(async () => {
@@ -72,10 +88,8 @@ export function BookmarkManager({
 
   // Load bookmarks on mount and when dependencies change
   useEffect(() => {
-    if (initialBookmarks.length === 0) {
-      fetchBookmarks()
-    }
-  }, [fetchBookmarks, initialBookmarks.length])
+    fetchBookmarks()
+  }, [fetchBookmarks])
 
   // Handle bookmark deletion
   const handleDeleteBookmark = async (bookmarkId: string) => {
@@ -157,16 +171,38 @@ export function BookmarkManager({
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-black">
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchBookmarks}
+            onClick={() => {
+              console.log('Manual refresh clicked')
+              fetchBookmarks()
+            }}
             disabled={isLoading}
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          
+          {/* <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              console.log('Debug button clicked')
+              try {
+                const params = new URLSearchParams()
+                if (workspaceId) params.append('workspaceId', workspaceId)
+                const response = await fetch(`/api/debug/bookmarks?${params.toString()}`)
+                const data = await response.json()
+                console.log('Debug data:', data)
+              } catch (error) {
+                console.error('Debug error:', error)
+              }
+            }}
+          >
+            Debug
+          </Button> */}
           
           {showCreateButton && (
             <Button

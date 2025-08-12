@@ -253,11 +253,25 @@ export async function getUserBookmarks(
   // Build where clause based on filter
   let whereClause: any = {
     userId,
-    workspaceId: options.workspaceId || null,
-    folderId: options.folderId || null,
-    isPrivate: options.isPrivate,
     isArchived: false
   };
+
+  // Handle workspaceId filtering
+  if (options.workspaceId) {
+    whereClause.workspaceId = options.workspaceId;
+  } else {
+    whereClause.workspaceId = null; // Personal bookmarks only
+  }
+
+  // Handle folderId filtering
+  if (options.folderId) {
+    whereClause.folderId = options.folderId;
+  }
+
+  // Handle privacy filtering
+  if (options.isPrivate !== undefined) {
+    whereClause.isPrivate = options.isPrivate;
+  }
 
   // Apply filter-specific conditions
   if (options.filter === 'favorites') {

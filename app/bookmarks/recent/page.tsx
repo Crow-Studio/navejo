@@ -2,6 +2,22 @@ import { cookies } from "next/headers";
 import { validateSessionToken } from "@/lib/server/session";
 import { redirect } from "next/navigation";
 import { BookmarkManager } from "@/components/bookmark-manager";
+import { BookmarkCreationProvider } from "@/components/bookmark-creation-provider";
+import { AppSidebar } from "@/components/app-sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 async function getUserData() {
   try {
@@ -28,18 +44,51 @@ export default async function RecentBookmarksPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Recent Bookmarks</h1>
-        <p className="text-gray-400">Your recently saved bookmarks</p>
-      </div>
-      
-      <BookmarkManager 
-        userId={user.id}
-        filter="recent"
-        showFilters={false}
-        showSearch={true}
-      />
-    </div>
+    <BookmarkCreationProvider>
+      <SidebarProvider>
+        <AppSidebar user={user} />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center bg-black text-white gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/dashboard" className="text-white hover:text-gray-300">
+                      Dashboard
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/bookmarks" className="text-white hover:text-gray-300">
+                      Bookmarks
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="text-white">Recent</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+          </header>
+          
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
+            <div className="mb-8 mt-4">
+              <h1 className="text-3xl font-bold text-white mb-2">Recent Bookmarks</h1>
+              <p className="text-gray-400">Your recently saved bookmarks</p>
+            </div>
+            
+            <BookmarkManager 
+              userId={user.id}
+              filter="recent"
+              showFilters={false}
+              showSearch={true}
+            />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </BookmarkCreationProvider>
   );
 }

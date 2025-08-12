@@ -18,10 +18,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import GrainOverlay from '@/components/shared/GrainOverlay'
 import { InviteUserDrawer } from '@/components/workspace/invite-user-drawer'
 import { BookmarkCreationProvider, useBookmarkCreation } from "@/components/bookmark-creation-provider"
 import { FloatingBookmarkButton } from "@/components/floating-bookmark-button"
+import DashboardContent from '@/components/dashboard/dashboardContent'
 import { 
   Users, 
   Settings, 
@@ -144,9 +144,7 @@ export function WorkspaceLayout({ user, workspace }: WorkspaceLayoutProps) {
         <SidebarInset>
           <WorkspaceHeader workspace={workspace} />
           
-          <div className="flex flex-1 flex-col gap-6 p-6 bg-black text-white">
-            <GrainOverlay />
-            
+          <div className="flex flex-1 flex-col gap-6 p-6 bg-black text-white min-h-screen">
             {/* Workspace Header */}
             <div 
               className="rounded-2xl border p-8"
@@ -202,66 +200,8 @@ export function WorkspaceLayout({ user, workspace }: WorkspaceLayoutProps) {
               </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div 
-                className="rounded-2xl p-8 border"
-                style={{ backgroundColor: '#080808', borderColor: '#000000' }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div 
-                    className="p-4 border rounded-xl"
-                    style={{ backgroundColor: '#000000', borderColor: '#020202' }}
-                  >
-                    <Bookmark className="w-8 h-8" style={{ color: '#ffffff' }} />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold" style={{ color: '#ffffff' }}>
-                      {workspace._count.bookmarks}
-                    </p>
-                    <p className="text-base" style={{ color: '#f2f2f2' }}>Bookmarks</p>
-                  </div>
-                </div>
-              </div>
-              <div 
-                className="rounded-2xl p-8 border"
-                style={{ backgroundColor: '#080808', borderColor: '#000000' }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div 
-                    className="p-4 border rounded-xl"
-                    style={{ backgroundColor: '#000000', borderColor: '#020202' }}
-                  >
-                    <Folder className="w-8 h-8" style={{ color: '#ffffff' }} />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold" style={{ color: '#ffffff' }}>
-                      {workspace._count.folders}
-                    </p>
-                    <p className="text-base" style={{ color: '#f2f2f2' }}>Collections</p>
-                  </div>
-                </div>
-              </div>
-              <div 
-                className="rounded-2xl p-8 border"
-                style={{ backgroundColor: '#080808', borderColor: '#000000' }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div 
-                    className="p-4 border rounded-xl"
-                    style={{ backgroundColor: '#000000', borderColor: '#020202' }}
-                  >
-                    <Users className="w-8 h-8" style={{ color: '#ffffff' }} />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold" style={{ color: '#ffffff' }}>
-                      {workspace.members.length}
-                    </p>
-                    <p className="text-base" style={{ color: '#f2f2f2' }}>Members</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Workspace Dashboard Stats */}
+            <DashboardContent workspaceId={workspace.id} />
 
             {/* Members Section */}
             <div 

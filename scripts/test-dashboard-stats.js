@@ -1,5 +1,4 @@
 // Test script for dashboard stats API
-const fetch = require('node-fetch');
 
 async function testDashboardStats() {
   try {

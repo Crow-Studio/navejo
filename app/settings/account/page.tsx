@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { validateSessionToken } from "@/lib/server/session";
 import { redirect } from "next/navigation";
-import { BookmarkManager } from "@/components/bookmark-manager";
+import { SettingsLayout } from "@/components/settings/settings-layout";
+import { AccountSettings } from "@/components/settings/account-settings";
 import { BookmarkCreationProvider } from "@/components/bookmark-creation-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -36,7 +37,7 @@ async function getUserData() {
   }
 }
 
-export default async function BookmarksPage() {
+export default async function AccountSettingsPage() {
   const user = await getUserData();
   
   if (!user) {
@@ -60,8 +61,14 @@ export default async function BookmarksPage() {
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/settings" className="text-white hover:text-gray-300">
+                      Settings
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="text-white">All Bookmarks</BreadcrumbPage>
+                    <BreadcrumbPage className="text-white">Account</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -69,17 +76,9 @@ export default async function BookmarksPage() {
           </header>
           
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
-            <div className="mb-8 mt-4">
-              <h1 className="text-3xl font-bold text-white mb-2">All Bookmarks</h1>
-              <p className="text-gray-400">Manage and organize your saved bookmarks</p>
-            </div>
-            
-            <BookmarkManager 
-              key="all-bookmarks"
-              userId={user.id}
-              showFilters={true}
-              showSearch={true}
-            />
+            <SettingsLayout currentPage="account">
+              <AccountSettings user={user} />
+            </SettingsLayout>
           </div>
         </SidebarInset>
       </SidebarProvider>

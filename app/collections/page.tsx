@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { validateSessionToken } from "@/lib/server/session";
 import { redirect } from "next/navigation";
-import { BookmarkManager } from "@/components/bookmark-manager";
+import { CollectionManager } from "@/components/collection-manager";
 import { BookmarkCreationProvider } from "@/components/bookmark-creation-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -36,7 +36,7 @@ async function getUserData() {
   }
 }
 
-export default async function BookmarksPage() {
+export default async function CollectionsPage() {
   const user = await getUserData();
   
   if (!user) {
@@ -61,7 +61,7 @@ export default async function BookmarksPage() {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="text-white">All Bookmarks</BreadcrumbPage>
+                    <BreadcrumbPage className="text-white">Collections</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -70,16 +70,11 @@ export default async function BookmarksPage() {
           
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
             <div className="mb-8 mt-4">
-              <h1 className="text-3xl font-bold text-white mb-2">All Bookmarks</h1>
-              <p className="text-gray-400">Manage and organize your saved bookmarks</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Collections</h1>
+              <p className="text-gray-400">Organize your bookmarks into collections</p>
             </div>
             
-            <BookmarkManager 
-              key="all-bookmarks"
-              userId={user.id}
-              showFilters={true}
-              showSearch={true}
-            />
+            <CollectionManager userId={user.id} />
           </div>
         </SidebarInset>
       </SidebarProvider>

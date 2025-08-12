@@ -3,17 +3,14 @@
 import * as React from "react"
 import {
   Bookmark,
-  BookOpen,
   Folder,
   Home,
-  Settings2,
-  Share2,
   Users,
 
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavFolders } from "@/components/nav-folders"
 import { NavUser } from "@/components/nav-user"
 import { WorkspaceSwitcher } from "@/components/workspace/workspace-switcher"
 import {
@@ -95,10 +92,6 @@ const getNavigationData = (user?: User | null) => ({
           title: "Create New",
           url: "/collections/new",
         },
-        {
-          title: "Shared with Me",
-          url: "/collections/shared",
-        },
       ],
     },
     {
@@ -111,46 +104,6 @@ const getNavigationData = (user?: User | null) => ({
           url: "/workspaces",
         },
       ],
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "/settings/general",
-        },
-        {
-          title: "Account",
-          url: "/settings/account",
-        },
-        {
-          title: "Billing",
-          url: "/settings/billing",
-        },
-        {
-          title: "Import",
-          url: "/settings/import",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Frontend Resources",
-      url: "/collections/frontend",
-      icon: BookOpen,
-    },
-    {
-      name: "Design Inspiration",
-      url: "/collections/design",
-      icon: Share2,
-    },
-    {
-      name: "Development Tools",
-      url: "/collections/tools",
-      icon: Settings2,
     },
   ],
 });
@@ -184,7 +137,7 @@ export function AppSidebar({ user, workspaceId, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} workspaceId={workspaceId} />
-        <NavProjects projects={data.projects} />
+        <NavFolders workspaceId={workspaceId} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

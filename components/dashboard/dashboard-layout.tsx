@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import GrainOverlay from '@/components/shared/GrainOverlay';
 import Greeting from '@/components/shared/greetings';
 import DashboardContent from '@/components/dashboard/dashboardContent';
 import { BookmarkCreationProvider, useBookmarkCreation } from "@/components/bookmark-creation-provider"
@@ -30,6 +29,7 @@ interface User {
 
 interface DashboardLayoutProps {
   user: User | null;
+  workspaceId?: string;
 }
 
 function DashboardHeader() {
@@ -76,17 +76,15 @@ function DashboardHeader() {
   )
 }
 
-export function DashboardLayout({ user }: DashboardLayoutProps) {
+export function DashboardLayout({ user, workspaceId }: DashboardLayoutProps) {
   return (
     <BookmarkCreationProvider>
       <SidebarProvider>
-        <AppSidebar user={user} />
+        <AppSidebar user={user} workspaceId={workspaceId} />
         <SidebarInset>
           <DashboardHeader />
           
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white">
-            <GrainOverlay/>
-            
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
             {/* Greeting Header Section */}
             <div className="mt-4 sm:mt-6 mb-6 sm:mb-8 px-2 sm:px-0">
               {/* Greeting Message with integrated time */}
@@ -97,7 +95,7 @@ export function DashboardLayout({ user }: DashboardLayoutProps) {
             </div>
 
             {/* Dashboard Content */}
-            <DashboardContent />
+            <DashboardContent workspaceId={workspaceId} />
           </div>
           
           {/* Floating Bookmark Button */}

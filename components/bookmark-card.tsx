@@ -150,7 +150,7 @@ export function BookmarkCard({
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             {/* Favicon */}
-            <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+            <div className="w-8 h-8 flex-shrink-0  text-black flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
               {bookmark.favicon ? (
                 <img 
                   src={bookmark.favicon} 
@@ -331,11 +331,13 @@ export function BookmarkCard({
             {/* Actions */}
             <div className="flex items-center gap-1">
               {/* Privacy indicator */}
-              {bookmark.isPrivate ? (
-                <EyeOff className="w-4 h-4 text-gray-400" title="Private bookmark" />
-              ) : (
-                <Eye className="w-4 h-4 text-blue-500" title="Visible to workspace members" />
-              )}
+              <div title={bookmark.isPrivate ? "Private bookmark" : "Visible to workspace members"}>
+                {bookmark.isPrivate ? (
+                  <EyeOff className="w-4 h-4 text-gray-400" />
+                ) : (
+                  <Eye className="w-4 h-4 text-blue-500" />
+                )}
+              </div>
 
               {/* Favorite button */}
               {onToggleFavorite && (

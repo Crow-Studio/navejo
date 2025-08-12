@@ -46,9 +46,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get workspace filter from query params
+    const { searchParams } = new URL(request.url);
+    const workspaceId = searchParams.get('workspaceId') || undefined;
+
     // Get current date for weekly calculation
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    // Build base where clause for workspace filtering
+    const baseWhere = {
+      userId: user.id,
+      workspaceId: workspaceId || null,
+      isArchived: false
+    };
+
+    const folderWhere = {
+      userId: workspaceId ? undefined : user.id,
+      workspaceId: workspaceId || null
+    };
 
     // Fetch dashboard statistics
     const [
@@ -61,31 +77,28 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       // Total bookmarks count
       prisma.bookmark.count({
-        where: {
-          userId: user.id,
-          isArchived: false
-        }
+        where: baseWhere
       }),
 
       // Collections (folders) count
       prisma.folder.count({
-        where: {
-          userId: user.id
-        }
+        where: folderWhere
       }),
 
       // Shared bookmarks count
       prisma.sharedBookmark.count({
         where: {
-          sharedById: user.id
+          sharedById: user.id,
+          bookmark: {
+            workspaceId: workspaceId || null
+          }
         }
       }),
 
       // Weekly bookmarks count
       prisma.bookmark.count({
         where: {
-          userId: user.id,
-          isArchived: false,
+          ...baseWhere,
           createdAt: {
             gte: oneWeekAgo
           }
@@ -94,10 +107,7 @@ export async function GET(request: NextRequest) {
 
       // Recent bookmarks (last 5)
       prisma.bookmark.findMany({
-        where: {
-          userId: user.id,
-          isArchived: false
-        },
+        where: baseWhere,
         select: {
           id: true,
           title: true,
@@ -118,9 +128,7 @@ export async function GET(request: NextRequest) {
 
       // Top collections by bookmark count
       prisma.folder.findMany({
-        where: {
-          userId: user.id
-        },
+        where: folderWhere,
         select: {
           id: true,
           name: true,
@@ -128,7 +136,8 @@ export async function GET(request: NextRequest) {
             select: {
               bookmarks: {
                 where: {
-                  isArchived: false
+                  isArchived: false,
+                  workspaceId: workspaceId || null
                 }
               }
             }

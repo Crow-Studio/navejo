@@ -201,11 +201,11 @@ export function BookmarkList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         {/* Search and filters */}
-        <div className="flex flex-1 gap-2 items-center">
+        <div className="flex flex-1 gap-2 items-center text-black">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -220,10 +220,10 @@ export function BookmarkList({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4" />
+                <Filter className="w-4 h-4 text-black bg-white" />
                 Filter
                 {hasActiveFilters && (
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
+                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs text-black bg-white">
                     {[
                       filters.tags.length,
                       filters.folders.length,

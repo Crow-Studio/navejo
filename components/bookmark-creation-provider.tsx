@@ -16,7 +16,14 @@ const BookmarkCreationContext = React.createContext<BookmarkCreationContextType 
 export function useBookmarkCreation() {
   const context = React.useContext(BookmarkCreationContext)
   if (!context) {
-    throw new Error("useBookmarkCreation must be used within BookmarkCreationProvider")
+    // Provide a fallback instead of throwing an error immediately
+    // This helps prevent crashes during navigation or SSR hydration
+    return {
+      openBookmarkDialog: () => {
+        console.warn("BookmarkCreationProvider not found. Make sure the component is wrapped with BookmarkCreationProvider.")
+      },
+      isDialogOpen: false
+    }
   }
   return context
 }

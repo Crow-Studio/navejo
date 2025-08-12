@@ -18,6 +18,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { prisma } from "@/lib/server/db";
+import { notFound } from "next/navigation";
 
 async function getUserData() {
   try {
@@ -36,17 +38,65 @@ async function getUserData() {
   }
 }
 
-export default async function SharedBookmarksPage() {
+async function getCollection(collectionId: string, userId: string) {
+  try {
+    const collection = await prisma.folder.findFirst({
+      where: {
+        id: collectionId,
+        OR: [
+          { userId: userId },
+          { workspace: { members: { some: { userId: userId } } } }
+        ]
+      },
+      include: {
+        workspace: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        _count: {
+          select: {
+            bookmarks: {
+              where: {
+                isArchived: false
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return collection;
+  } catch (error) {
+    console.error("Error fetching collection:", error);
+    return null;
+  }
+}
+
+interface CollectionPageProps {
+  params: {
+    collectionId: string;
+  };
+}
+
+export default async function CollectionPage({ params }: CollectionPageProps) {
   const user = await getUserData();
   
   if (!user) {
     redirect("/auth/signin");
   }
 
+  const collection = await getCollection(params.collectionId, user.id);
+  
+  if (!collection) {
+    notFound();
+  }
+
   return (
     <BookmarkCreationProvider>
       <SidebarProvider>
-        <AppSidebar user={user} />
+        <AppSidebar user={user} workspaceId={collection.workspace?.id} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center bg-black text-white gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-4">
@@ -61,13 +111,23 @@ export default async function SharedBookmarksPage() {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/bookmarks" className="text-white hover:text-gray-300">
-                      Bookmarks
+                    <BreadcrumbLink href="/collections" className="text-white hover:text-gray-300">
+                      Collections
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
+                  {collection.workspace && (
+                    <>
+                      <BreadcrumbItem className="hidden md:block">
+                        <BreadcrumbLink href={`/workspace/${collection.workspace.id}`} className="text-white hover:text-gray-300">
+                          {collection.workspace.name}
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator className="hidden md:block" />
+                    </>
+                  )}
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="text-white">Shared</BreadcrumbPage>
+                    <BreadcrumbPage className="text-white">{collection.name}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -76,15 +136,23 @@ export default async function SharedBookmarksPage() {
           
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
             <div className="mb-8 mt-4">
-              <h1 className="text-3xl font-bold text-white mb-2">Shared Bookmarks</h1>
-              <p className="text-gray-400">Bookmarks you've shared with others</p>
+              <h1 className="text-3xl font-bold text-white mb-2">{collection.name}</h1>
+              {collection.description && (
+                <p className="text-gray-400">{collection.description}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-2">
+                {collection._count.bookmarks} bookmark{collection._count.bookmarks !== 1 ? 's' : ''}
+              </p>
             </div>
             
             <BookmarkManager 
               userId={user.id}
-              filter="shared"
-              showFilters={false}
-              showSearch={true}
+              folderId={collection.id}
+              workspaceId={collection.workspace?.id}
+              showCreateButton={true}
+              showWorkspace={!!collection.workspace}
+              emptyMessage="No bookmarks in this collection"
+              emptyDescription="Add bookmarks to organize them in this collection"
             />
           </div>
         </SidebarInset>

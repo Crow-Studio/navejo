@@ -70,6 +70,18 @@ export function BookmarkShareDialog({
     }
   }
 
+  const handleCopyAppLink = async () => {
+    if (!bookmark) return
+    
+    const appUrl = `${window.location.origin}/shared/bookmark/${bookmark.id}`
+    try {
+      await navigator.clipboard.writeText(appUrl)
+      toast.success("App link copied to clipboard")
+    } catch (error) {
+      toast.error("Failed to copy app link")
+    }
+  }
+
   const handleCopyMarkdown = async () => {
     if (!bookmark) return
     
@@ -120,7 +132,7 @@ export function BookmarkShareDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] text-black">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
@@ -214,12 +226,11 @@ export function BookmarkShareDialog({
             </div>
 
             {/* Format Options */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyFormatted}
-                className="flex-1"
               >
                 <Copy className="w-4 h-4 mr-2" />
                 Copy Formatted
@@ -228,10 +239,18 @@ export function BookmarkShareDialog({
                 variant="outline"
                 size="sm"
                 onClick={handleCopyMarkdown}
-                className="flex-1"
               >
                 <Link className="w-4 h-4 mr-2" />
                 Copy Markdown
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyAppLink}
+                className="col-span-2"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Copy App Link
               </Button>
             </div>
           </div>
