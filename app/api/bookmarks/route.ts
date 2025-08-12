@@ -5,7 +5,7 @@ import { createBookmark, getUserBookmarks } from "@/lib/server/bookmark";
 import { z } from "zod";
 
 const createBookmarkSchema = z.object({
-  url: z.string().url("Invalid URL format"),
+  url: z.string().url({ message: "Invalid URL format" }),
   title: z.string().min(1, "Title is required").max(500, "Title too long"),
   description: z.string().optional(),
   notes: z.string().max(1000, "Notes too long").optional(),

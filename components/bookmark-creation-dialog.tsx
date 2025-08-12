@@ -43,7 +43,7 @@ interface MetadataExtractionResult {
 
 // Form validation schema
 const bookmarkFormSchema = z.object({
-  url: z.string().min(1, "URL is required").url("Please enter a valid URL"),
+  url: z.string().min(1, "URL is required").url({ message: "Please enter a valid URL" }),
   title: z.string().min(1, "Title is required").max(500, "Title is too long"),
   description: z.string().max(1000, "Description is too long").optional(),
   notes: z.string().max(1000, "Notes are too long").optional(),
@@ -267,7 +267,7 @@ export function BookmarkCreationDialog({
           throw new Error("A bookmark with this URL already exists")
         } else if (result.details && Array.isArray(result.details)) {
           // Handle validation errors
-          const errorMessages = result.details.map((detail: any) => `${detail.field}: ${detail.message}`).join(", ")
+          const errorMessages = result.details.map((detail: { field: string; message: string }) => `${detail.field}: ${detail.message}`).join(", ")
           throw new Error(`Validation errors: ${errorMessages}`)
         } else {
           throw new Error(result.error || "Failed to create bookmark")

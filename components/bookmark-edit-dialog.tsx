@@ -116,7 +116,7 @@ export function BookmarkEditDialog({
         if (response.status === 404) {
           throw new Error("Bookmark not found")
         } else if (result.details && Array.isArray(result.details)) {
-          const errorMessages = result.details.map((detail: any) => `${detail.field}: ${detail.message}`).join(", ")
+          const errorMessages = result.details.map((detail: { field: string; message: string }) => `${detail.field}: ${detail.message}`).join(", ")
           throw new Error(`Validation errors: ${errorMessages}`)
         } else {
           throw new Error(result.error || "Failed to update bookmark")

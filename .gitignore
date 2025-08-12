@@ -18,6 +18,9 @@
 /.next/
 /.kiro/
 /out/
+/.vscode/
+/docs
+/.docs/
 
 # production
 /build
