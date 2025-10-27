@@ -29,6 +29,14 @@
 .DS_Store
 *.pem
 
+# documentation and markdown files
+*.md
+!README.md
+docs/
+scripts/setup-*.md
+*_SUMMARY.md
+*_FIXES.md
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -1,0 +1,28 @@
+name: Database Keepalive
+
+on:
+  schedule:
+    # Run every 25 minutes to prevent Xata DB from sleeping
+    - cron: '*/25 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping database keepalive endpoint
+        run: |
+          echo "Pinging database keepalive endpoint..."
+          response=$(curl -s -w "%{http_code}" https://navejo.crowstudios.tech/api/health/keepalive)
+          http_code="${response: -3}"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Database keepalive successful (HTTP $http_code)"
+          else
+            echo "❌ Database keepalive failed (HTTP $http_code)"
+            echo "Response: ${response%???}"
+            exit 1
+          fi
+      
+      - name: Log timestamp
+        run: echo "Keepalive completed at $(date -u)"
