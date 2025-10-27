@@ -20,7 +20,8 @@ import { Plus } from "lucide-react"
 import { BookmarkCreationProvider, useBookmarkCreation } from "@/components/bookmark-creation-provider"
 import { FloatingBookmarkButton } from "@/components/floating-bookmark-button"
 import { UserProvider } from "@/contexts/user-context"
-import { ReactNode } from "react"
+import { ReactNode, useEffect } from "react"
+import { setupGlobalErrorHandling } from "@/lib/crash-prevention"
 
 interface User {
   id: string;
@@ -88,6 +89,11 @@ function AppHeader({ breadcrumbs }: { breadcrumbs?: AppLayoutProps['breadcrumbs'
 }
 
 export function AppLayout({ user, workspaceId, children, breadcrumbs, showGreeting = false }: AppLayoutProps) {
+  // Setup global error handling
+  useEffect(() => {
+    setupGlobalErrorHandling();
+  }, []);
+
   return (
     <UserProvider initialUser={user}>
       <BookmarkCreationProvider>

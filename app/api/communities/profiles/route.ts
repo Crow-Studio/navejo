@@ -57,7 +57,17 @@ export async function GET(request: NextRequest) {
 
     // Fetch public profiles with their public bookmarks
     const profiles = await prisma.profile.findMany({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        // Ensure we only get profiles that are actually public
+        isPublic: true,
+        // Ensure the user still exists
+        user: {
+          id: {
+            not: undefined
+          }
+        }
+      },
       select: {
         id: true,
         name: true,

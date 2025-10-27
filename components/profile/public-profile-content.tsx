@@ -79,6 +79,11 @@ export function PublicProfileContent({ profile, currentUser }: PublicProfileCont
   }, [searchQuery, profile.bookmarks]);
 
   const handleSaveBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
+    if (!bookmarkId || !bookmarkTitle) {
+      toast.error('Invalid bookmark data');
+      return;
+    }
+
     try {
       const response = await fetch('/api/bookmarks/import', {
         method: 'POST',
@@ -93,8 +98,8 @@ export function PublicProfileContent({ profile, currentUser }: PublicProfileCont
       if (response.ok) {
         toast.success(`"${bookmarkTitle}" saved to your bookmarks`);
       } else {
-        const error = await response.json();
-        toast.error(error.message || 'Failed to save bookmark');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        toast.error(errorData.message || 'Failed to save bookmark');
       }
     } catch (error) {
       console.error('Error saving bookmark:', error);

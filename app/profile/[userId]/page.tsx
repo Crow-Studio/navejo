@@ -19,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { PublicProfileContent } from "@/components/profile/public-profile-content";
+import ErrorBoundary from "@/components/error-boundary";
 
 const prisma = new PrismaClient();
 
@@ -46,6 +47,16 @@ async function getUserData(): Promise<User | null> {
 
 async function getPublicProfile(userId: string) {
   try {
+    // First check if user exists at all
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    });
+
+    if (!userExists) {
+      return null;
+    }
+
     const profile = await prisma.profile.findFirst({
       where: {
         userId,
@@ -162,7 +173,8 @@ export default async function PublicProfilePage({
   const profile = await getPublicProfile(userId);
 
   if (!profile) {
-    redirect('/communities');
+    // Profile is private or doesn't exist - redirect with error message
+    redirect('/communities?error=profile-not-found');
   }
 
   return (
@@ -197,7 +209,9 @@ export default async function PublicProfilePage({
           </header>
 
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
-            <PublicProfileContent profile={profile} currentUser={user} />
+            <ErrorBoundary>
+              <PublicProfileContent profile={profile} currentUser={user} />
+            </ErrorBoundary>
           </div>
         </SidebarInset>
       </SidebarProvider>

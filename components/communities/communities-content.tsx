@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useUser } from "@/contexts/user-context";
+import ErrorBoundary from "@/components/error-boundary";
+import { safeAsync, validateProfile, safeFilter, handleApiResponse } from "@/lib/crash-prevention";
 import {
   Users,
   Bookmark,
@@ -74,6 +76,18 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
   // Use context user if available, fallback to prop user
   const currentUser = contextUser || user;
 
+  // Check for error messages in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error === 'profile-not-found') {
+      toast.error('Profile not found or is private');
+      // Clean up URL
+      window.history.replaceState({}, '', '/communities');
+    }
+  }, []);
+
   useEffect(() => {
     fetchPublicProfiles();
   }, []);
@@ -99,23 +113,27 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
   }, [searchQuery, profiles]);
 
   const fetchPublicProfiles = async () => {
-    try {
+    const result = await safeAsync(async () => {
       const response = await fetch('/api/communities/profiles');
-      if (response.ok) {
-        const data = await response.json();
-        setProfiles(data.profiles);
-      } else {
-        toast.error('Failed to load community profiles');
-      }
-    } catch (error) {
-      console.error('Error fetching profiles:', error);
-      toast.error('Failed to load community profiles');
-    } finally {
-      setLoading(false);
+      const data = await handleApiResponse(response);
+      
+      // Filter out any invalid profiles using crash prevention utilities
+      const validProfiles = safeFilter<PublicProfile>(data.profiles || [], validateProfile);
+      return validProfiles;
+    }, [], 'Failed to load community profiles');
+
+    if (result) {
+      setProfiles(result);
     }
+    setLoading(false);
   };
 
   const handleSaveBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
+    if (!bookmarkId || !bookmarkTitle) {
+      toast.error('Invalid bookmark data');
+      return;
+    }
+
     try {
       const response = await fetch('/api/bookmarks/import', {
         method: 'POST',
@@ -130,8 +148,8 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
       if (response.ok) {
         toast.success(`"${bookmarkTitle}" saved to your bookmarks`);
       } else {
-        const error = await response.json();
-        toast.error(error.message || 'Failed to save bookmark');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        toast.error(errorData.message || 'Failed to save bookmark');
       }
     } catch (error) {
       console.error('Error saving bookmark:', error);
@@ -367,7 +385,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                       )}
                     </div>
                   </div>
-                  <Link href={`/profile/${profile.id}`}>
+                  <Link href={`/profile/${profile.id}`} prefetch={false}>
                     <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-gray-800 hover:text-gray-100">
                       <ExternalLink className="w-4 h-4" />
                     </Button>
