@@ -3,6 +3,7 @@ import { getCurrentSession } from "@/lib/server/session"
 import { AppLayout } from "@/components/layouts/app-layout"
 import { ProfileSettings } from "@/components/profile/profile-settings"
 import { Suspense } from "react"
+import { prisma } from "@/lib/server/db"
 
 // Force dynamic rendering to avoid prerender issues
 export const dynamic = 'force-dynamic'
@@ -10,6 +11,12 @@ export const dynamic = 'force-dynamic'
 interface User {
   id: string;
   email: string;
+  profile?: {
+    name?: string | null;
+    bio?: string | null;
+    isPublic?: boolean;
+    imageUrl?: string | null;
+  } | null;
 }
 
 async function getUserData(): Promise<User | null> {
@@ -20,9 +27,20 @@ async function getUserData(): Promise<User | null> {
       return null
     }
     
+    // Get user with profile data
+    const userWithProfile = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { profile: true }
+    })
+    
+    if (!userWithProfile) {
+      return null
+    }
+    
     return {
-      id: user.id,
-      email: user.email
+      id: userWithProfile.id,
+      email: userWithProfile.email,
+      profile: userWithProfile.profile
     }
   } catch (error) {
     console.error("Error fetching user data:", error)

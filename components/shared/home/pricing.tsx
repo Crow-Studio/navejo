@@ -78,9 +78,11 @@ const PricingSection = () => {
                 <p className="text-white/70 mb-6">{plan.description}</p>
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-white">
-                    ${isYearly ? plan.price.yearly : plan.price.monthly}
+                    {plan.name === 'Explorer' ? 'Free' : 'Coming Soon'}
                   </span>
-                  <span className="text-white/70">/month</span>
+                  {plan.name === 'Explorer' && (
+                    <span className="text-white/70"> forever</span>
+                  )}
                 </div>
                 <Button
                   className={`w-full ${

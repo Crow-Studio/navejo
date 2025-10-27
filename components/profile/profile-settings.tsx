@@ -31,7 +31,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [formData, setFormData] = useState({
     displayName: user.profile?.name || "",
     bio: user.profile?.bio || "",
-    isPublic: user.profile?.isPublic || false,
+    isPublic: user.profile?.isPublic !== undefined ? user.profile.isPublic : true, // Default to public
   })
 
   const handleSave = async () => {

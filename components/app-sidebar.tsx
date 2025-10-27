@@ -21,6 +21,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useUser } from "@/contexts/user-context"
 
 interface User {
   id: string;
@@ -33,86 +34,95 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 // Updated navigation data for Navejo
-const getNavigationData = (user?: User | null) => ({
-  user: user ? {
+const getNavigationData = (user?: User | null, contextUser?: any) => {
+  // Use context user data if available, fallback to prop user, then guest
+  const userData = contextUser && contextUser.name && contextUser.email ? {
+    name: contextUser.name,
+    email: contextUser.email,
+    avatar: contextUser.avatar || generateAvatarUrl(contextUser.email),
+  } : user ? {
     name: extractNameFromEmail(user.email),
     email: user.email,
-    avatar: generateAvatarUrl(user.email), // Generate avatar based on email
+    avatar: generateAvatarUrl(user.email),
   } : {
     name: "Guest",
     email: "guest@navejo.com",
     avatar: "/avatars/default.jpg",
-  },
-  teams: [
-    {
-      name: "Navejo",
-      logo: Bookmark,
-      plan: "Navigator",
-    },
-  ],
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: Home,
-      isActive: true,
-    },
-    {
-      title: "Bookmarks",
-      url: "/bookmarks",
-      icon: Bookmark,
-      items: [
-        {
-          title: "All Bookmarks",
-          url: "/bookmarks",
-        },
-        {
-          title: "Recent",
-          url: "/bookmarks/recent",
-        },
-        {
-          title: "Favorites",
-          url: "/bookmarks/favorites",
-        },
-        {
-          title: "Shared",
-          url: "/bookmarks/shared",
-        },
-      ],
-    },
-    {
-      title: "Collections",
-      url: "/collections",
-      icon: Folder,
-      items: [
-        {
-          title: "All Collections",
-          url: "/collections",
-        },
-        {
-          title: "Create New",
-          url: "/collections/new",
-        },
-      ],
-    },
-    {
-      title: "Communities",
-      url: "/communities",
-      icon: Globe,
-    },
-    {
-      title: "Workspaces",
-      url: "/workspaces",
-      icon: Users,
-      items: [
-        {
-          title: "All Workspaces",
-          url: "/workspaces",
-        },
-      ],
-    },
-  ],
-});
+  };
+
+  return {
+    user: userData,
+    teams: [
+      {
+        name: "Navejo",
+        logo: Bookmark,
+        plan: "Navigator",
+      },
+    ],
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: Home,
+        isActive: true,
+      },
+      {
+        title: "Bookmarks",
+        url: "/bookmarks",
+        icon: Bookmark,
+        items: [
+          {
+            title: "All Bookmarks",
+            url: "/bookmarks",
+          },
+          {
+            title: "Recent",
+            url: "/bookmarks/recent",
+          },
+          {
+            title: "Favorites",
+            url: "/bookmarks/favorites",
+          },
+          {
+            title: "Shared",
+            url: "/bookmarks/shared",
+          },
+        ],
+      },
+      {
+        title: "Collections",
+        url: "/collections",
+        icon: Folder,
+        items: [
+          {
+            title: "All Collections",
+            url: "/collections",
+          },
+          {
+            title: "Create New",
+            url: "/collections/new",
+          },
+        ],
+      },
+      {
+        title: "Communities",
+        url: "/communities",
+        icon: Globe,
+      },
+      {
+        title: "Workspaces",
+        url: "/workspaces",
+        icon: Users,
+        items: [
+          {
+            title: "All Workspaces",
+            url: "/workspaces",
+          },
+        ],
+      },
+    ],
+  };
+};
 
 // Helper function to extract name from email
 function extractNameFromEmail(email: string): string {
@@ -134,7 +144,8 @@ function generateAvatarUrl(email: string): string {
 }
 
 export function AppSidebar({ user, workspaceId, ...props }: AppSidebarProps) {
-  const data = getNavigationData(user);
+  const { user: contextUser } = useUser();
+  const data = getNavigationData(user, contextUser);
 
   return (
     <Sidebar collapsible="icon" {...props}>
