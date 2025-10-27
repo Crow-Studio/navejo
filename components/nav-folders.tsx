@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Folder, FolderOpen, type LucideIcon } from "lucide-react"
+import { Folder } from "lucide-react"
+import Link from "next/link"
 
 import {
   SidebarGroup,
@@ -80,10 +81,10 @@ export function NavFolders({ workspaceId }: NavFoldersProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href="/collections/new">
+              <Link href="/collections/new">
                 <Folder className="w-4 h-4" />
                 <span className="text-gray-500">Create your first collection</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

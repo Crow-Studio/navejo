@@ -6,6 +6,7 @@ import { Plus, Folder, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import Link from "next/link"
 
 interface Collection {
   id: string;
@@ -24,7 +25,7 @@ interface CollectionManagerProps {
   workspaceId?: string;
 }
 
-export function CollectionManager({ userId, workspaceId }: CollectionManagerProps) {
+export function CollectionManager({ userId: _userId, workspaceId }: CollectionManagerProps) {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -108,10 +109,10 @@ export function CollectionManager({ userId, workspaceId }: CollectionManagerProp
           </Button>
           
           <Button size="sm" asChild>
-            <a href="/collections/new">
+            <Link href="/collections/new">
               <Plus className="w-4 h-4 mr-2" />
               New Collection
-            </a>
+            </Link>
           </Button>
         </div>
       </div>
@@ -123,10 +124,10 @@ export function CollectionManager({ userId, workspaceId }: CollectionManagerProp
           <h3 className="text-lg font-medium text-white mb-2">No collections yet</h3>
           <p className="text-gray-400 mb-6">Create your first collection to organize your bookmarks</p>
           <Button asChild>
-            <a href="/collections/new">
+            <Link href="/collections/new">
               <Plus className="w-4 h-4 mr-2" />
               Create Collection
-            </a>
+            </Link>
           </Button>
         </div>
       ) : (

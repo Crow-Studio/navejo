@@ -73,7 +73,7 @@ export function FolderSelector({
   // Load folders when component mounts or workspace changes
   React.useEffect(() => {
     loadFolders()
-  }, [workspaceId])
+  }, [workspaceId, loadFolders])
 
   const loadFolders = async () => {
     setIsLoading(true)

@@ -24,7 +24,7 @@ export async function getUserTags(
   const { workspaceId, query, limit = 20 } = options;
 
   // Build where clause for tag search
-  const whereClause: any = {
+  const whereClause: Record<string, unknown> = {
     userId,
   };
 

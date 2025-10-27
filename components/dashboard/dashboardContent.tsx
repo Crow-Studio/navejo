@@ -78,7 +78,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "", wor
   const CACHE_DURATION = 5 * 60 * 1000;
 
   // Fetch dashboard data with caching
-  const fetchDashboardData = React.useCallback(async (forceRefresh = false) => {
+  const fetchDashboardData = React.useCallback(async (_forceRefresh = false) => {
     const now = Date.now();
 
     try {
@@ -111,7 +111,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "", wor
           data,
           timestamp: now
         }));
-      } catch (e) {
+      } catch {
         // Ignore localStorage errors
       }
     } catch (err) {
@@ -159,12 +159,12 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "", wor
           return;
         }
       }
-    } catch (e) {
+    } catch {
       // Ignore cache errors
     }
 
     fetchDashboardData();
-  }, [workspaceId]); // Only depend on workspaceId to avoid infinite loops
+  }, [workspaceId, CACHE_DURATION, fetchDashboardData]); // Only depend on workspaceId to avoid infinite loops
 
   // Helper function to format time ago
   const formatTimeAgo = (date: Date) => {

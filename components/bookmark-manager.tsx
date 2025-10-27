@@ -27,39 +27,27 @@ interface BookmarkManagerProps {
 }
 
 export function BookmarkManager({
-  userId,
+  userId: _userId,
   workspaceId,
   folderId,
   initialBookmarks = [],
   showCreateButton = true,
   showWorkspace = false,
-  showFilters = false,
-  showSearch = false,
+  showFilters: _showFilters = false, // TODO: Implement filters functionality
+  showSearch: _showSearch = false, // TODO: Implement search functionality
   filter,
   emptyMessage,
   emptyDescription
 }: BookmarkManagerProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>(initialBookmarks)
-  
-  // Debug state changes
-  useEffect(() => {
-    console.log('Bookmarks state changed:', bookmarks.length, 'bookmarks')
-  }, [bookmarks])
+
+
   const [isLoading, setIsLoading] = useState(false)
   const [editingBookmark, setEditingBookmark] = useState<BookmarkData | null>(null)
   const [sharingBookmark, setSharingBookmark] = useState<BookmarkData | null>(null)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
 
-  // Debug component lifecycle
-  useEffect(() => {
-    console.log('BookmarkManager mounted with props:', {
-      userId, workspaceId, folderId, filter, initialBookmarks: initialBookmarks.length
-    })
-    
-    return () => {
-      console.log('BookmarkManager unmounting')
-    }
-  }, [])
+
 
   // Fetch bookmarks
   const fetchBookmarks = useCallback(async () => {
@@ -71,7 +59,7 @@ export function BookmarkManager({
       if (filter) params.append('filter', filter)
 
       const response = await fetch(`/api/bookmarks?${params.toString()}`)
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch bookmarks')
       }
@@ -105,7 +93,7 @@ export function BookmarkManager({
 
       // Remove bookmark from local state
       setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
-      
+
     } catch (error) {
       console.error('Error deleting bookmark:', error)
       throw error // Re-throw to let BookmarkCard handle the error display
@@ -129,14 +117,14 @@ export function BookmarkManager({
       }
 
       const data = await response.json()
-      
+
       // Update bookmark in local state
-      setBookmarks(prev => prev.map(bookmark => 
-        bookmark.id === bookmarkId 
+      setBookmarks(prev => prev.map(bookmark =>
+        bookmark.id === bookmarkId
           ? { ...bookmark, isFavorite: data.bookmark.isFavorite }
           : bookmark
       ))
-      
+
     } catch (error) {
       console.error('Error toggling favorite:', error)
       throw error // Re-throw to let BookmarkCard handle the error display
@@ -145,7 +133,7 @@ export function BookmarkManager({
 
   // Handle bookmark update from edit dialog
   const handleBookmarkUpdated = (updatedBookmark: BookmarkData) => {
-    setBookmarks(prev => prev.map(bookmark => 
+    setBookmarks(prev => prev.map(bookmark =>
       bookmark.id === updatedBookmark.id ? updatedBookmark : bookmark
     ))
     setEditingBookmark(null)
@@ -170,13 +158,12 @@ export function BookmarkManager({
             {bookmarks.length} bookmark{bookmarks.length !== 1 ? 's' : ''}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2 text-black">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              console.log('Manual refresh clicked')
               fetchBookmarks()
             }}
             disabled={isLoading}
@@ -184,7 +171,7 @@ export function BookmarkManager({
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          
+
           {/* <Button
             variant="outline"
             size="sm"
@@ -195,7 +182,7 @@ export function BookmarkManager({
                 if (workspaceId) params.append('workspaceId', workspaceId)
                 const response = await fetch(`/api/debug/bookmarks?${params.toString()}`)
                 const data = await response.json()
-                console.log('Debug data:', data)
+                // Debug data available in response
               } catch (error) {
                 console.error('Debug error:', error)
               }
@@ -203,7 +190,7 @@ export function BookmarkManager({
           >
             Debug
           </Button> */}
-          
+
           {showCreateButton && (
             <Button
               size="sm"

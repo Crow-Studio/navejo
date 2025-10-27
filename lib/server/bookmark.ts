@@ -251,7 +251,7 @@ export async function getUserBookmarks(
   } = {}
 ) {
   // Build where clause based on filter
-  let whereClause: any = {
+  const whereClause: Record<string, unknown> = {
     userId,
     isArchived: false
   };

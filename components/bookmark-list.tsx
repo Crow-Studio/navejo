@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Search, Filter, Grid, List, SortAsc, SortDesc, Loader2 } from "lucide-react"
 
 import { BookmarkCard, type BookmarkData } from "@/components/bookmark-card"

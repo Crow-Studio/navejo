@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { usePathname } from "next/navigation"
+
 import { BookmarkCreationDialog } from "@/components/bookmark-creation-dialog"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useBookmarkUrlParams } from "@/hooks/use-url-params"
@@ -48,8 +48,33 @@ export function BookmarkCreationProvider({
     isPrivate?: boolean
   } | undefined>()
   
-  const pathname = usePathname()
+
   const { bookmarkParams, hasParams, clearParams } = useBookmarkUrlParams()
+
+  // Define callback functions first
+  const openBookmarkDialog = React.useCallback((initialUrl?: string, workspaceId?: string) => {
+    setDialogInitialUrl(initialUrl || "")
+    setDialogWorkspaceId(workspaceId || currentWorkspaceId)
+    setDialogInitialData(undefined)
+    setIsDialogOpen(true)
+  }, [currentWorkspaceId])
+
+  const openBookmarkDialogWithData = React.useCallback((
+    initialUrl?: string, 
+    workspaceId?: string, 
+    initialData?: {
+      title?: string
+      description?: string
+      tags?: string[]
+      folderId?: string
+      isPrivate?: boolean
+    }
+  ) => {
+    setDialogInitialUrl(initialUrl || "")
+    setDialogWorkspaceId(workspaceId || currentWorkspaceId)
+    setDialogInitialData(initialData)
+    setIsDialogOpen(true)
+  }, [currentWorkspaceId])
 
   // Handle URL parameters from browser extension or direct links
   React.useEffect(() => {
@@ -77,31 +102,7 @@ export function BookmarkCreationProvider({
       // Clear URL parameters after opening dialog
       clearParams()
     }
-  }, [hasParams, bookmarkParams, currentWorkspaceId, clearParams])
-
-  const openBookmarkDialog = React.useCallback((initialUrl?: string, workspaceId?: string) => {
-    setDialogInitialUrl(initialUrl || "")
-    setDialogWorkspaceId(workspaceId || currentWorkspaceId)
-    setDialogInitialData(undefined)
-    setIsDialogOpen(true)
-  }, [currentWorkspaceId])
-
-  const openBookmarkDialogWithData = React.useCallback((
-    initialUrl?: string, 
-    workspaceId?: string, 
-    initialData?: {
-      title?: string
-      description?: string
-      tags?: string[]
-      folderId?: string
-      isPrivate?: boolean
-    }
-  ) => {
-    setDialogInitialUrl(initialUrl || "")
-    setDialogWorkspaceId(workspaceId || currentWorkspaceId)
-    setDialogInitialData(initialData)
-    setIsDialogOpen(true)
-  }, [currentWorkspaceId])
+  }, [hasParams, bookmarkParams, currentWorkspaceId, clearParams, openBookmarkDialogWithData])
 
   const closeBookmarkDialog = React.useCallback(() => {
     setIsDialogOpen(false)

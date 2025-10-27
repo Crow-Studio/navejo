@@ -40,7 +40,7 @@ export function BookmarkShareDialog({
       setCopiedUrl(true)
       toast.success("URL copied to clipboard")
       setTimeout(() => setCopiedUrl(false), 2000)
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy URL")
     }
   }
@@ -53,7 +53,7 @@ export function BookmarkShareDialog({
       setCopiedTitle(true)
       toast.success("Title copied to clipboard")
       setTimeout(() => setCopiedTitle(false), 2000)
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy title")
     }
   }
@@ -65,7 +65,7 @@ export function BookmarkShareDialog({
     try {
       await navigator.clipboard.writeText(formattedText)
       toast.success("Formatted text copied to clipboard")
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy formatted text")
     }
   }
@@ -77,7 +77,7 @@ export function BookmarkShareDialog({
     try {
       await navigator.clipboard.writeText(appUrl)
       toast.success("App link copied to clipboard")
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy app link")
     }
   }
@@ -89,7 +89,7 @@ export function BookmarkShareDialog({
     try {
       await navigator.clipboard.writeText(markdownText)
       toast.success("Markdown link copied to clipboard")
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy markdown")
     }
   }

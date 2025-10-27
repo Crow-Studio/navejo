@@ -6,6 +6,7 @@ import {
   Folder,
   Home,
   Users,
+  Globe,
 
 } from "lucide-react"
 
@@ -93,6 +94,11 @@ const getNavigationData = (user?: User | null) => ({
           url: "/collections/new",
         },
       ],
+    },
+    {
+      title: "Communities",
+      url: "/communities",
+      icon: Globe,
     },
     {
       title: "Workspaces",

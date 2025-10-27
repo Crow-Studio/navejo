@@ -46,7 +46,7 @@ const colorOptions = [
   { name: "Gray", value: "#6b7280" },
 ];
 
-export function CreateCollectionForm({ userId, workspaceId }: CreateCollectionFormProps) {
+export function CreateCollectionForm({ userId: _userId, workspaceId }: CreateCollectionFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
