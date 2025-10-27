@@ -1,5 +1,6 @@
 import React from 'react';
-import { Twitter, Github, Mail } from 'lucide-react';
+import { Github, Mail } from 'lucide-react';
+import { HugeiconsNewTwitter } from '@/components/icons/twitter-icon';
 
 
 const Footer = () => {
@@ -13,7 +14,7 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: Twitter, href: '#twitter', label: 'Twitter' },
+    { icon: HugeiconsNewTwitter, href: '#twitter', label: 'Twitter' },
     { icon: Github, href: '#github', label: 'GitHub' },
     { icon: Mail, href: '#email', label: 'Email' }
   ];
