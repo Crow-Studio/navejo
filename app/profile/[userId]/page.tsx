@@ -150,15 +150,16 @@ async function getPublicProfile(userId: string) {
 export default async function PublicProfilePage({
   params,
 }: {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }) {
+  const { userId } = await params;
   const user = await getUserData();
 
   if (!user) {
     redirect('/auth/signin');
   }
 
-  const profile = await getPublicProfile(params.userId);
+  const profile = await getPublicProfile(userId);
 
   if (!profile) {
     redirect('/communities');

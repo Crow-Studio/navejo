@@ -122,7 +122,7 @@ export function GeneralSettings({ user }: GeneralSettingsProps) {
       </Card>
 
       <div className="flex justify-end">
-        <Button className="bg-white text-black hover:bg-gray-100">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
           Save Changes
         </Button>
       </div>

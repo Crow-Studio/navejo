@@ -113,7 +113,7 @@ export function ImportSettings({ user }: ImportSettingsProps) {
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isImporting}
-                className="bg-white text-black hover:bg-gray-100"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Choose File

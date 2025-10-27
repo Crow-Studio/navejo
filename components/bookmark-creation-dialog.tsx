@@ -349,7 +349,7 @@ export function BookmarkCreationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto text-black">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {createdBookmark ? (
@@ -373,17 +373,17 @@ export function BookmarkCreationDialog({
         {createdBookmark ? (
           // Success state
           <div className="space-y-4">
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
+            <Alert className="border-green-700 bg-green-900/20">
+              <CheckCircle className="h-4 w-4 text-green-400" />
+              <AlertDescription className="text-green-400">
                 Your bookmark has been successfully created and saved{workspaceId ? " to your workspace" : ""}.
               </AlertDescription>
             </Alert>
             
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ExternalLink className="w-4 h-4 text-blue-600" />
+                <div className="w-8 h-8 bg-blue-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ExternalLink className="w-4 h-4 text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-900 truncate">{createdBookmark.title}</p>
@@ -398,9 +398,9 @@ export function BookmarkCreationDialog({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Error Alert */}
               {submitError && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800">
+                <Alert className="border-red-700 bg-red-900/20">
+                  <AlertCircle className="h-4 w-4 text-red-400" />
+                  <AlertDescription className="text-red-400">
                     {submitError}
                   </AlertDescription>
                 </Alert>
@@ -408,8 +408,8 @@ export function BookmarkCreationDialog({
 
               {/* Workspace Context Info */}
               {workspaceId && (
-                <Alert className="border-blue-200 bg-blue-50">
-                  <AlertDescription className="text-blue-800">
+                <Alert className="border-blue-700 bg-blue-900/20">
+                  <AlertDescription className="text-blue-400">
                     This bookmark will be saved to your current workspace and will be visible to workspace members unless marked as private.
                   </AlertDescription>
                 </Alert>

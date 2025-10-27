@@ -123,7 +123,7 @@ function WorkspaceHeader({ workspace }: { workspace: Workspace }) {
         <div className="hidden sm:block">
           <Button
             onClick={() => openBookmarkDialog(undefined, workspace.id)}
-            className="bg-white text-black hover:bg-gray-100 gap-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
             size="sm"
           >
             <Plus className="h-4 w-4" />

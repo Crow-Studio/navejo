@@ -371,7 +371,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ className = "", wor
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button 
-          className="p-6 rounded-xl hover:bg-gray-100 transition-all duration-200 bg-white text-black"
+          className="p-6 rounded-xl hover:bg-gray-700 transition-all duration-200 bg-gray-800 text-white border border-gray-700"
           onClick={() => openBookmarkDialog()}
         >
           <div className="flex items-center space-x-3">

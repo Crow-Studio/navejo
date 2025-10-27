@@ -159,7 +159,7 @@ export function BookmarkEditDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] text-black max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] bg-gray-900 border-gray-700 text-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Bookmark</DialogTitle>
           <DialogDescription>

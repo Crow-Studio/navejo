@@ -132,7 +132,7 @@ export function BookmarkShareDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] text-black">
+      <DialogContent className="sm:max-w-[500px] bg-gray-900 border-gray-700 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
@@ -145,9 +145,9 @@ export function BookmarkShareDialog({
 
         <div className="space-y-6">
           {/* Bookmark Preview */}
-          <div className="p-4 bg-gray-50 rounded-lg">
+          <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 flex-shrink-0 bg-white rounded-lg overflow-hidden flex items-center justify-center border">
+              <div className="w-10 h-10 flex-shrink-0 bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center border border-gray-600">
                 {bookmark.favicon ? (
                   <img 
                     src={bookmark.favicon} 
@@ -296,8 +296,8 @@ export function BookmarkShareDialog({
 
           {/* Privacy Notice */}
           {bookmark.isPrivate && (
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800">
+            <div className="p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
+              <p className="text-sm text-yellow-400">
                 <strong>Note:</strong> This is a private bookmark. Only you can access it through your bookmark collection.
               </p>
             </div>

@@ -62,7 +62,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button className="bg-white text-black hover:bg-gray-100">
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                             Update Profile
                         </Button>
                     </div>
@@ -105,7 +105,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button className="bg-white text-black hover:bg-gray-100">
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                             Change Password
                         </Button>
                     </div>

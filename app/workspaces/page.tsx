@@ -101,7 +101,7 @@ export default async function WorkspacesPage() {
                   </p>
                 </div>
                 <CreateWorkspaceDrawer>
-                  <Button className="bg-white text-black hover:bg-gray-100 gap-2">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
                     <Plus className="w-4 h-4" />
                     Create Organization
                   </Button>
@@ -122,7 +122,7 @@ export default async function WorkspacesPage() {
                   </p>
                 </div>
                 <CreateWorkspaceDrawer>
-                  <Button className="bg-white text-black hover:bg-gray-100 gap-2">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
                     <Plus className="w-4 h-4" />
                     Create Your First Organization
                   </Button>
