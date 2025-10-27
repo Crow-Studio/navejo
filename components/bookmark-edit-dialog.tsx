@@ -32,11 +32,11 @@ import { FolderSelector } from "@/components/folder-selector"
 import { TagInput } from "@/components/tag-input"
 import { type BookmarkData } from "@/components/bookmark-card"
 
-// Form validation schema
+// Form validation schema - more flexible for editing
 const editBookmarkSchema = z.object({
   title: z.string().min(1, "Title is required").max(500, "Title is too long"),
-  description: z.string().max(1000, "Description is too long").optional(),
-  notes: z.string().max(1000, "Notes are too long").optional(),
+  description: z.string().max(1000, "Description is too long").optional().or(z.literal("")),
+  notes: z.string().max(1000, "Notes are too long").optional().or(z.literal("")),
   folderId: z.string().nullable(),
   tags: z.array(z.string()).max(20, "Maximum 20 tags allowed"),
   isPrivate: z.boolean(),
@@ -94,20 +94,67 @@ export function BookmarkEditDialog({
     setIsSubmitting(true)
 
     try {
+      // Only send fields that have actually changed
+      const updateData: Partial<{
+        title: string
+        description: string | null
+        notes: string | null
+        folderId: string | null
+        tags: string[]
+        isPrivate: boolean
+        isFavorite: boolean
+      }> = {}
+
+      // Check each field for changes
+      if (data.title.trim() !== bookmark.title) {
+        updateData.title = data.title.trim()
+      }
+
+      const newDescription = data.description?.trim() || null
+      const oldDescription = bookmark.description || null
+      if (newDescription !== oldDescription) {
+        updateData.description = newDescription
+      }
+
+      const newNotes = data.notes?.trim() || null
+      const oldNotes = bookmark.notes || null
+      if (newNotes !== oldNotes) {
+        updateData.notes = newNotes
+      }
+
+      const newFolderId = data.folderId
+      const oldFolderId = bookmark.folder?.id || null
+      if (newFolderId !== oldFolderId) {
+        updateData.folderId = newFolderId
+      }
+
+      const newTags = data.tags.filter(tag => tag.trim().length > 0)
+      const oldTags = bookmark.tags.map(tag => tag.name)
+      if (JSON.stringify(newTags.sort()) !== JSON.stringify(oldTags.sort())) {
+        updateData.tags = newTags
+      }
+
+      if (data.isPrivate !== bookmark.isPrivate) {
+        updateData.isPrivate = data.isPrivate
+      }
+
+      if (data.isFavorite !== bookmark.isFavorite) {
+        updateData.isFavorite = data.isFavorite
+      }
+
+      // If no changes, just close the dialog
+      if (Object.keys(updateData).length === 0) {
+        toast.info("No changes to save")
+        onClose()
+        return
+      }
+
       const response = await fetch(`/api/bookmarks/${bookmark.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: data.title.trim(),
-          description: data.description?.trim() || null,
-          notes: data.notes?.trim() || null,
-          folderId: data.folderId,
-          tags: data.tags.filter(tag => tag.trim().length > 0),
-          isPrivate: data.isPrivate,
-          isFavorite: data.isFavorite,
-        }),
+        body: JSON.stringify(updateData),
       })
 
       const result = await response.json()
@@ -125,7 +172,7 @@ export function BookmarkEditDialog({
 
       // Success!
       toast.success("Bookmark updated successfully")
-      
+
       // Notify parent component
       if (onBookmarkUpdated && result.bookmark) {
         onBookmarkUpdated(result.bookmark)
@@ -144,7 +191,7 @@ export function BookmarkEditDialog({
 
   const handleClose = () => {
     if (isSubmitting) return
-    
+
     const hasChanges = form.formState.isDirty
     if (hasChanges) {
       if (confirm("You have unsaved changes. Are you sure you want to close?")) {

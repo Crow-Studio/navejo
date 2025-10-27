@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { validateSessionToken } from "@/lib/server/session";
-import { getOrCreateDefaultFolder } from "@/lib/server/folder";
+import { getOrCreateImportedFolder } from "@/lib/server/folder";
 
 const prisma = new PrismaClient();
 
@@ -93,9 +93,9 @@ export async function POST(request: NextRequest) {
       console.log("No workspace found, creating personal bookmark");
     }
 
-    // Get or create default folder
-    const defaultFolder = await getOrCreateDefaultFolder(user.id, targetWorkspaceId || undefined);
-    console.log("Default folder:", defaultFolder.id);
+    // Get or create "Imported" folder for better organization
+    const importedFolder = await getOrCreateImportedFolder(user.id, targetWorkspaceId || undefined);
+    console.log("Imported folder:", importedFolder.id);
 
     // Create the imported bookmark
     const importedBookmark = await prisma.bookmark.create({
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         title: sourceBookmark.title,
         url: sourceBookmark.url,
         description: sourceBookmark.description,
-        notes: `Imported from community bookmark`,
+        notes: `Imported from community on ${new Date().toLocaleDateString()}`,
         favicon: sourceBookmark.favicon,
         imageUrl: sourceBookmark.imageUrl,
         siteName: sourceBookmark.siteName,
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         isFavorite: false,
         userId: user.id,
         workspaceId: targetWorkspaceId || null,
-        folderId: defaultFolder.id,
+        folderId: importedFolder.id,
         // Tags will be handled separately after bookmark creation
       },
       include: {

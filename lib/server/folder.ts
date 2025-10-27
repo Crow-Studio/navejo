@@ -190,6 +190,47 @@ export async function getOrCreateDefaultFolder(
 }
 
 /**
+ * Get or create "Imported" folder for user/workspace
+ */
+export async function getOrCreateImportedFolder(
+  userId: string,
+  workspaceId?: string
+): Promise<FolderWithCounts> {
+  // Look for existing "Imported" folder
+  const existingImported = await prisma.folder.findFirst({
+    where: {
+      name: "Imported",
+      userId: workspaceId ? null : userId,
+      workspaceId: workspaceId || null
+    },
+    include: {
+      _count: {
+        select: {
+          bookmarks: true,
+          children: true
+        }
+      }
+    }
+  });
+
+  if (existingImported) {
+    return existingImported;
+  }
+
+  // Create "Imported" folder if it doesn't exist
+  const importedFolder = await createFolder(userId, {
+    name: "Imported",
+    description: "Bookmarks imported from community and other sources",
+    color: "#10B981", // Green color to distinguish imported bookmarks
+    icon: "📥", // Import icon
+    workspaceId,
+    isDefault: false
+  });
+
+  return importedFolder;
+}
+
+/**
  * Validate user has access to a specific folder
  */
 export async function validateFolderAccess(

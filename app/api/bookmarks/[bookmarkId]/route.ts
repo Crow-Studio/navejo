@@ -6,13 +6,13 @@ import { z } from "zod";
 
 const updateBookmarkSchema = z.object({
   title: z.string().min(1, "Title is required").max(500, "Title too long").optional(),
-  description: z.string().max(1000, "Description too long").optional(),
-  notes: z.string().max(1000, "Notes too long").optional(),
+  description: z.string().max(1000, "Description too long").nullable().optional(),
+  notes: z.string().max(1000, "Notes too long").nullable().optional(),
   folderId: z.string().nullable().optional(),
-  tags: z.array(z.string().min(1).max(50)).max(20, "Too many tags").optional(),
+  tags: z.array(z.string().max(50)).max(20, "Too many tags").optional(),
   isPrivate: z.boolean().optional(),
   isFavorite: z.boolean().optional(),
-});
+}).partial(); // Make all fields optional for PATCH operations
 
 // GET /api/bookmarks/[bookmarkId] - Get specific bookmark
 export const GET = withAuth(async (user, request, { params }) => {
@@ -142,17 +142,37 @@ export const PATCH = withAuth(async (user, request, { params }) => {
 
     // Update bookmark with transaction to handle tags
     await prisma.$transaction(async (tx) => {
+      // Prepare update data, handling empty strings properly
+      const updateData: any = {}
+      
+      if (validatedData.title !== undefined) {
+        updateData.title = validatedData.title
+      }
+      
+      if (validatedData.description !== undefined) {
+        updateData.description = validatedData.description === "" ? null : validatedData.description
+      }
+      
+      if (validatedData.notes !== undefined) {
+        updateData.notes = validatedData.notes === "" ? null : validatedData.notes
+      }
+      
+      if (validatedData.folderId !== undefined) {
+        updateData.folderId = validatedData.folderId
+      }
+      
+      if (validatedData.isPrivate !== undefined) {
+        updateData.isPrivate = validatedData.isPrivate
+      }
+      
+      if (validatedData.isFavorite !== undefined) {
+        updateData.isFavorite = validatedData.isFavorite
+      }
+
       // Update bookmark
       const bookmark = await tx.bookmark.update({
         where: { id: bookmarkId },
-        data: {
-          ...(validatedData.title !== undefined && { title: validatedData.title }),
-          ...(validatedData.description !== undefined && { description: validatedData.description }),
-          ...(validatedData.notes !== undefined && { notes: validatedData.notes }),
-          ...(validatedData.folderId !== undefined && { folderId: validatedData.folderId }),
-          ...(validatedData.isPrivate !== undefined && { isPrivate: validatedData.isPrivate }),
-          ...(validatedData.isFavorite !== undefined && { isFavorite: validatedData.isFavorite }),
-        }
+        data: updateData
       });
 
       // Handle tags update if provided
