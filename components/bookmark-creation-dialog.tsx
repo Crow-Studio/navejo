@@ -348,8 +348,8 @@ export function BookmarkCreationDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+    <Dialog open={isOpen} onOpenChange={handleClose} >
+      <DialogContent className="sm:max-w-[600px]  max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {createdBookmark ? (
@@ -379,7 +379,7 @@ export function BookmarkCreationDialog({
                 Your bookmark has been successfully created and saved{workspaceId ? " to your workspace" : ""}.
               </AlertDescription>
             </Alert>
-            
+
             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-blue-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -414,161 +414,161 @@ export function BookmarkCreationDialog({
                   </AlertDescription>
                 </Alert>
               )}
-            {/* URL Input */}
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        placeholder="https://example.com"
-                        {...field}
-                        className="pr-10"
-                      />
-                      {isExtractingMetadata && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Metadata Preview */}
-            {(extractedMetadata || metadataError || isExtractingMetadata) && (
-              <MetadataPreview
-                metadata={extractedMetadata}
-                isLoading={isExtractingMetadata}
-                error={metadataError}
-                onRetry={handleRetryMetadata}
-                onMetadataChange={(updatedMetadata) => {
-                  if (extractedMetadata) {
-                    const newMetadata = { ...extractedMetadata, ...updatedMetadata }
-                    setExtractedMetadata(newMetadata)
-                    // Update form fields if they match the metadata
-                    if (updatedMetadata.title && form.getValues("title") === extractedMetadata.title) {
-                      form.setValue("title", updatedMetadata.title)
-                    }
-                    if (updatedMetadata.description && form.getValues("description") === extractedMetadata.description) {
-                      form.setValue("description", updatedMetadata.description)
-                    }
-                  }
-                }}
-                editable={true}
+              {/* URL Input */}
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          placeholder="https://example.com"
+                          {...field}
+                          className="pr-10"
+                        />
+                        {isExtractingMetadata && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            )}
 
-            {/* Folder Selection */}
-            <FormField
-              control={form.control}
-              name="folderId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Folder</FormLabel>
-                  <FormControl>
-                    <FolderSelector
-                      workspaceId={workspaceId}
-                      selectedFolderId={field.value}
-                      onFolderSelect={field.onChange}
-                      placeholder="Select a folder or create new..."
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Choose a folder to organize your bookmark
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+              {/* Metadata Preview */}
+              {(extractedMetadata || metadataError || isExtractingMetadata) && (
+                <MetadataPreview
+                  metadata={extractedMetadata}
+                  isLoading={isExtractingMetadata}
+                  error={metadataError}
+                  onRetry={handleRetryMetadata}
+                  onMetadataChange={(updatedMetadata) => {
+                    if (extractedMetadata) {
+                      const newMetadata = { ...extractedMetadata, ...updatedMetadata }
+                      setExtractedMetadata(newMetadata)
+                      // Update form fields if they match the metadata
+                      if (updatedMetadata.title && form.getValues("title") === extractedMetadata.title) {
+                        form.setValue("title", updatedMetadata.title)
+                      }
+                      if (updatedMetadata.description && form.getValues("description") === extractedMetadata.description) {
+                        form.setValue("description", updatedMetadata.description)
+                      }
+                    }
+                  }}
+                  editable={true}
+                />
               )}
-            />
 
-            {/* Tags Input */}
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags</FormLabel>
-                  <FormControl>
-                    <TagInput
-                      workspaceId={workspaceId}
-                      selectedTags={field.value || []}
-                      onTagsChange={field.onChange}
-                      placeholder="Add tags to organize your bookmark..."
-                      maxTags={20}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Add tags to make your bookmark easier to find (max 20 tags)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Folder Selection */}
+              <FormField
+                control={form.control}
+                name="folderId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Folder</FormLabel>
+                    <FormControl>
+                      <FolderSelector
+                        workspaceId={workspaceId}
+                        selectedFolderId={field.value}
+                        onFolderSelect={field.onChange}
+                        placeholder="Select a folder or create new..."
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Choose a folder to organize your bookmark
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Title Input */}
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter bookmark title" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Tags Input */}
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags</FormLabel>
+                    <FormControl>
+                      <TagInput
+                        workspaceId={workspaceId}
+                        selectedTags={field.value || []}
+                        onTagsChange={field.onChange}
+                        placeholder="Add tags to organize your bookmark..."
+                        maxTags={20}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Add tags to make your bookmark easier to find (max 20 tags)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Description Input */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Optional description"
-                      className="min-h-[80px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Brief description of the bookmark content
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Title Input */}
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter bookmark title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Notes Input */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Personal Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add your personal notes..."
-                      className="min-h-[80px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Your private notes about this bookmark (max 1000 characters)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Description Input */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Optional description"
+                        className="min-h-[80px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Brief description of the bookmark content
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Notes Input */}
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Personal Notes</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Add your personal notes..."
+                        className="min-h-[80px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Your private notes about this bookmark (max 1000 characters)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Privacy Settings */}
               <FormField
@@ -604,6 +604,7 @@ export function BookmarkCreationDialog({
                   variant="outline"
                   onClick={handleClose}
                   disabled={isSubmitting}
+                  className="text-black"
                 >
                   Cancel
                 </Button>

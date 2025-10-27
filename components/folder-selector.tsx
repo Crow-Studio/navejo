@@ -70,12 +70,7 @@ export function FolderSelector({
   const [newFolderName, setNewFolderName] = React.useState("")
   const [isCreating, setIsCreating] = React.useState(false)
 
-  // Load folders when component mounts or workspace changes
-  React.useEffect(() => {
-    loadFolders()
-  }, [workspaceId, loadFolders])
-
-  const loadFolders = async () => {
+  const loadFolders = React.useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams()
@@ -105,7 +100,12 @@ export function FolderSelector({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [workspaceId, selectedFolderId, onFolderSelect])
+
+  // Load folders when component mounts or workspace changes
+  React.useEffect(() => {
+    loadFolders()
+  }, [loadFolders])
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {

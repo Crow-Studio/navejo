@@ -111,13 +111,17 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-zinc-800" />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
-                  <User className="text-blue-400" />
-                  Profile
+                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                  <a href="/profile">
+                    <User className="text-blue-400" />
+                    Profile
+                  </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
-                  <Settings className="text-gray-400" />
-                  Settings
+                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                  <a href="/settings">
+                    <Settings className="text-gray-400" />
+                    Settings
+                  </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
                   <CreditCard className="text-green-400" />
