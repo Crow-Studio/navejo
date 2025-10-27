@@ -356,7 +356,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                     </div>
                   </div>
                   <Link href={`/profile/${profile.id}`}>
-                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-gray-800 hover:text-gray-100">
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -383,7 +383,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                         href={profile.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-white transition-colors"
+                        className="hover:text-gray-100 transition-colors"
                       >
                         Website
                       </a>
@@ -422,7 +422,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleProfileExpansion(profile.id)}
-                        className="text-gray-400 hover:text-white text-xs"
+                        className="text-gray-400 hover:bg-gray-800 hover:text-gray-100 text-xs"
                       >
                         {expandedProfiles.has(profile.id) ? 'Show Less' : 'Show More'}
                       </Button>
@@ -479,7 +479,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleCopyUrl(bookmark.url)}
-                                className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+                                className="h-6 w-6 p-0 text-gray-400 hover:bg-gray-800 hover:text-gray-100"
                               >
                                 <Copy className="w-3 h-3" />
                               </Button>
@@ -487,7 +487,7 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleSaveBookmark(bookmark.id, bookmark.title)}
-                                className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+                                className="h-6 w-6 p-0 text-gray-400 hover:bg-gray-800 hover:text-gray-100"
                               >
                                 <Heart className="w-3 h-3" />
                               </Button>

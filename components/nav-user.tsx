@@ -32,9 +32,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { LogoutModal } from "@/components/shared/logout-modal"
+import { useUser } from "@/contexts/user-context"
 
 export function NavUser({
-  user,
+  user: initialUser,
 }: {
   user: {
     name: string
@@ -42,6 +43,14 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const { user: contextUser } = useUser()
+  
+  // Use context user if available and has data, fallback to initial user
+  const user = (contextUser && contextUser.name && contextUser.email) ? {
+    name: contextUser.name,
+    email: contextUser.email,
+    avatar: contextUser.avatar || initialUser.avatar
+  } : initialUser
   const { isMobile } = useSidebar()
   const [showLogoutModal, setShowLogoutModal] = React.useState(false)
 
@@ -104,30 +113,30 @@ export function NavUser({
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-zinc-800" />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <Sparkles className="text-yellow-500" />
                   Upgrade to Pro
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-zinc-800" />
               <DropdownMenuGroup>
-                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <a href="/profile">
                     <User className="text-blue-400" />
                     Profile
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <a href="/settings">
                     <Settings className="text-gray-400" />
                     Settings
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <CreditCard className="text-green-400" />
                   Billing
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-white cursor-pointer">
+                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <Bell className="text-orange-400" />
                   Notifications
                 </DropdownMenuItem>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@/contexts/user-context';
 
 interface GreetingProps {
   email?: string;
@@ -18,10 +19,15 @@ const Greeting: React.FC<GreetingProps> = ({
   name, 
   className = "" 
 }) => {
+  const { user: contextUser } = useUser()
   const [greeting, setGreeting] = useState<GreetingData>({
     message: "Hello",
     gradient: "from-yellow-400 to-orange-500"
   });
+
+  // Use context user data if available, fallback to props
+  const userEmail = contextUser?.email || email
+  const userName = contextUser?.name || name
 
   // Extract name from email if name is not provided
   const extractNameFromEmail = (email: string): string => {
@@ -75,7 +81,7 @@ const Greeting: React.FC<GreetingProps> = ({
   }, []);
 
   // Determine display name
-  const displayName = name || (email ? extractNameFromEmail(email) : 'there');
+  const displayName = userName || (userEmail ? extractNameFromEmail(userEmail) : 'there');
 
   // Format current date and time
   const formatDateTime = (): string => {

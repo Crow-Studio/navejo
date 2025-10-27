@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useUser } from "@/contexts/user-context"
 
 interface ProfileSettingsProps {
   user: {
@@ -25,6 +26,7 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ user }: ProfileSettingsProps) {
+  const { updateUser, refreshUser } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     displayName: user.profile?.name || "",
@@ -46,6 +48,14 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       if (!response.ok) {
         throw new Error("Failed to update profile")
       }
+
+      // Update the user context with new data
+      updateUser({
+        name: formData.displayName,
+      })
+
+      // Refresh user data from server to get latest state
+      await refreshUser()
 
       toast.success("Profile updated successfully!")
     } catch (error) {

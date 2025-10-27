@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { BookmarkCreationProvider, useBookmarkCreation } from "@/components/bookmark-creation-provider"
 import { FloatingBookmarkButton } from "@/components/floating-bookmark-button"
+import { UserProvider } from "@/contexts/user-context"
 import { ReactNode } from "react"
 
 interface User {
@@ -41,7 +42,7 @@ function AppHeader({ breadcrumbs }: { breadcrumbs?: AppLayoutProps['breadcrumbs'
   const { openBookmarkDialog } = useBookmarkCreation()
 
   return (
-    <header className="flex h-16 shrink-0 items-center bg-black text-white hover:text-white gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+    <header className="flex h-16 shrink-0 items-center bg-black text-white gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
       <div className="flex items-center justify-between w-full gap-2 px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
@@ -88,20 +89,22 @@ function AppHeader({ breadcrumbs }: { breadcrumbs?: AppLayoutProps['breadcrumbs'
 
 export function AppLayout({ user, workspaceId, children, breadcrumbs, showGreeting = false }: AppLayoutProps) {
   return (
-    <BookmarkCreationProvider>
-      <SidebarProvider>
-        <AppSidebar user={user} workspaceId={workspaceId} />
-        <SidebarInset>
-          <AppHeader breadcrumbs={breadcrumbs} />
-          
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
-            {children}
-          </div>
-          
-          {/* Floating Bookmark Button */}
-          <FloatingBookmarkButton />
-        </SidebarInset>
-      </SidebarProvider>
-    </BookmarkCreationProvider>
+    <UserProvider initialUser={user}>
+      <BookmarkCreationProvider>
+        <SidebarProvider>
+          <AppSidebar user={user} workspaceId={workspaceId} />
+          <SidebarInset>
+            <AppHeader breadcrumbs={breadcrumbs} />
+            
+            <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
+              {children}
+            </div>
+            
+            {/* Floating Bookmark Button */}
+            <FloatingBookmarkButton />
+          </SidebarInset>
+        </SidebarProvider>
+      </BookmarkCreationProvider>
+    </UserProvider>
   )
 }

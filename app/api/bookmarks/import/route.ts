@@ -35,7 +35,11 @@ export async function POST(request: NextRequest) {
         isArchived: false
       },
       include: {
-        tags: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        },
         folder: true
       }
     });
@@ -102,21 +106,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         workspaceId: targetWorkspaceId,
         // Don't copy folder - let user organize it themselves
-        tags: {
-          connectOrCreate: sourceBookmark.tags.map(tag => ({
-            where: {
-              name_userId: {
-                name: tag.name,
-                userId: user.id
-              }
-            },
-            create: {
-              name: tag.name,
-              color: tag.color,
-              userId: user.id
-            }
-          }))
-        }
+        // Tags will be handled separately after bookmark creation
       },
       include: {
         tags: true,
@@ -129,6 +119,39 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    // Handle tags separately
+    if (sourceBookmark.tags && sourceBookmark.tags.length > 0) {
+      for (const bookmarkTag of sourceBookmark.tags) {
+        const sourceTag = bookmarkTag.tag;
+        
+        // Find or create tag
+        let tag = await prisma.tag.findFirst({
+          where: {
+            name: sourceTag.name.toLowerCase().trim(),
+            userId: user.id
+          }
+        });
+
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: {
+              name: sourceTag.name.toLowerCase().trim(),
+              color: sourceTag.color,
+              userId: user.id
+            }
+          });
+        }
+
+        // Associate tag with bookmark
+        await prisma.bookmarkTag.create({
+          data: {
+            bookmarkId: importedBookmark.id,
+            tagId: tag.id
+          }
+        });
+      }
+    }
 
     return NextResponse.json({
       bookmark: {
