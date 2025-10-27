@@ -1,10 +1,10 @@
 export interface PricingPlan {
   name: string;
   description: string;
-  price: {
-    monthly: number;
-    yearly: number;
-  };
+  // price: {
+  //   monthly: number;
+  //   yearly: number;
+  // };
   buttonText: string;
   buttonVariant: 'primary' | 'secondary';
   popular?: boolean;
@@ -20,7 +20,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: 'Explorer',
     description: 'Perfect for getting started',
-    price: { monthly: 0, yearly: 0 },
+    // price: { monthly: 0, yearly: 0 },
     buttonText: 'Get Started Free',
     buttonVariant: 'secondary',
     features: [
@@ -34,7 +34,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: 'Navigator',
     description: 'For serious bookmark curators',
-    price: { monthly: 8, yearly: 6 },
+    // price: { monthly: 8, yearly: 6 },
     buttonText: 'Start Free Trial',
     buttonVariant: 'primary',
     popular: true,
@@ -51,7 +51,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: 'Team',
     description: 'For teams and organizations',
-    price: { monthly: 15, yearly: 12 },
+    // price: { monthly: 15, yearly: 12 },
     buttonText: 'Start Free Trial',
     buttonVariant: 'primary',
     features: [

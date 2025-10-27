@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useUser } from "@/contexts/user-context";
 import {
   Users,
   Bookmark,
@@ -61,6 +62,7 @@ interface CommunitiesContentProps {
 }
 
 export function CommunitiesContent({ user }: CommunitiesContentProps) {
+  const { user: contextUser } = useUser();
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,9 +71,19 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
   const [bulkImporting, setBulkImporting] = useState(false);
   const [expandedProfiles, setExpandedProfiles] = useState<Set<string>>(new Set());
 
+  // Use context user if available, fallback to prop user
+  const currentUser = contextUser || user;
+
   useEffect(() => {
     fetchPublicProfiles();
   }, []);
+
+  // Refresh profiles when user context changes (e.g., after profile update)
+  useEffect(() => {
+    if (contextUser?.name) {
+      fetchPublicProfiles();
+    }
+  }, [contextUser?.name]);
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -427,7 +439,13 @@ export function CommunitiesContent({ user }: CommunitiesContentProps) {
                         {expandedProfiles.has(profile.id) ? 'Show Less' : 'Show More'}
                       </Button>
                     </div>
-                    <div className="space-y-2">
+                    <div 
+                      className={`space-y-2 ${
+                        expandedProfiles.has(profile.id) 
+                          ? 'max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' 
+                          : ''
+                      }`}
+                    >
                       {profile.recentBookmarks
                         .slice(0, expandedProfiles.has(profile.id) ? undefined : 3)
                         .map((bookmark) => (

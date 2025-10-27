@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { validateSessionToken } from "@/lib/server/session";
+import { getOrCreateDefaultFolder } from "@/lib/server/folder";
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { sourceBookmarkId, workspaceId } = body;
 
+    console.log("Import request data:", { sourceBookmarkId, workspaceId, userId: user.id });
+
     if (!sourceBookmarkId) {
+      console.log("Missing sourceBookmarkId in request");
       return NextResponse.json(
         { error: "Source bookmark ID is required" },
         { status: 400 }
@@ -82,12 +86,16 @@ export async function POST(request: NextRequest) {
       targetWorkspaceId = defaultWorkspace?.workspaceId;
     }
 
+    console.log("Target workspace ID:", targetWorkspaceId);
+
+    // If no workspace found, create bookmark without workspace (personal bookmark)
     if (!targetWorkspaceId) {
-      return NextResponse.json(
-        { error: "No workspace found" },
-        { status: 400 }
-      );
+      console.log("No workspace found, creating personal bookmark");
     }
+
+    // Get or create default folder
+    const defaultFolder = await getOrCreateDefaultFolder(user.id, targetWorkspaceId || undefined);
+    console.log("Default folder:", defaultFolder.id);
 
     // Create the imported bookmark
     const importedBookmark = await prisma.bookmark.create({
@@ -104,8 +112,8 @@ export async function POST(request: NextRequest) {
         isPrivate: true, // Import as private by default
         isFavorite: false,
         userId: user.id,
-        workspaceId: targetWorkspaceId,
-        // Don't copy folder - let user organize it themselves
+        workspaceId: targetWorkspaceId || null,
+        folderId: defaultFolder.id,
         // Tags will be handled separately after bookmark creation
       },
       include: {
@@ -153,32 +161,58 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch the complete bookmark with tags
+    const completeBookmark = await prisma.bookmark.findUnique({
+      where: { id: importedBookmark.id },
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        folder: true,
+        workspace: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
     return NextResponse.json({
       bookmark: {
-        id: importedBookmark.id,
-        title: importedBookmark.title,
-        url: importedBookmark.url,
-        description: importedBookmark.description,
-        notes: importedBookmark.notes,
-        favicon: importedBookmark.favicon,
-        imageUrl: importedBookmark.imageUrl,
-        siteName: importedBookmark.siteName,
-        author: importedBookmark.author,
-        publishedAt: importedBookmark.publishedAt,
-        isPrivate: importedBookmark.isPrivate,
-        isFavorite: importedBookmark.isFavorite,
-        folder: importedBookmark.folder,
-        tags: importedBookmark.tags,
-        workspace: importedBookmark.workspace,
-        createdAt: importedBookmark.createdAt,
-        updatedAt: importedBookmark.updatedAt
+        id: completeBookmark!.id,
+        title: completeBookmark!.title,
+        url: completeBookmark!.url,
+        description: completeBookmark!.description,
+        notes: completeBookmark!.notes,
+        favicon: completeBookmark!.favicon,
+        imageUrl: completeBookmark!.imageUrl,
+        siteName: completeBookmark!.siteName,
+        author: completeBookmark!.author,
+        publishedAt: completeBookmark!.publishedAt,
+        isPrivate: completeBookmark!.isPrivate,
+        isFavorite: completeBookmark!.isFavorite,
+        folder: completeBookmark!.folder,
+        tags: completeBookmark!.tags.map(bt => bt.tag),
+        workspace: completeBookmark!.workspace,
+        createdAt: completeBookmark!.createdAt,
+        updatedAt: completeBookmark!.updatedAt
       }
     });
 
   } catch (error) {
     console.error("Error importing bookmark:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
-      { error: "Failed to import bookmark" },
+      { 
+        error: "Failed to import bookmark",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

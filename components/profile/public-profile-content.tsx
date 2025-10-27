@@ -324,8 +324,9 @@ export function PublicProfileContent({ profile, currentUser }: PublicProfileCont
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBookmarks.map((bookmark) => (
+        <div className="max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+            {filteredBookmarks.map((bookmark) => (
             <Card key={bookmark.id} className="bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
@@ -428,7 +429,8 @@ export function PublicProfileContent({ profile, currentUser }: PublicProfileCont
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

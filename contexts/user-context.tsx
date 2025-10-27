@@ -41,10 +41,16 @@ export function UserProvider({
     
     setIsLoading(true)
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/user/profile')
       if (response.ok) {
         const userData = await response.json()
-        setUser(userData.user)
+        // Update user with profile data
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          name: userData.profile?.name || userData.email.split('@')[0],
+          avatar: userData.profile?.imageUrl || undefined
+        })
       }
     } catch (error) {
       console.error('Failed to refresh user data:', error)

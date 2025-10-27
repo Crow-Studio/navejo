@@ -22,7 +22,6 @@ import DashboardContent from '@/components/dashboard/dashboardContent';
 import { useState, useEffect } from 'react';
 import { BookmarkCreationProvider, useBookmarkCreation } from "@/components/bookmark-creation-provider"
 import { FloatingBookmarkButton } from "@/components/floating-bookmark-button"
-import { UserProvider } from "@/contexts/user-context"
 
 interface User {
   id: string;
@@ -108,32 +107,30 @@ function DashboardHeader() {
 
 export function DashboardLayout({ user, workspaceId }: DashboardLayoutProps) {
   return (
-    <UserProvider initialUser={user}>
-      <BookmarkCreationProvider>
-        <SidebarProvider>
-          <AppSidebar user={user} workspaceId={workspaceId} />
-          <SidebarInset>
-            <DashboardHeader />
-            
-            <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
-              {/* Greeting Header Section */}
-              <div className="mt-4 sm:mt-6 mb-6 sm:mb-8 px-2 sm:px-0">
-                {/* Greeting Message with integrated time */}
-                <GreetingWithProfile 
-                  email={user?.email}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Dashboard Content */}
-              <DashboardContent workspaceId={workspaceId} />
+    <BookmarkCreationProvider>
+      <SidebarProvider>
+        <AppSidebar user={user} workspaceId={workspaceId} />
+        <SidebarInset>
+          <DashboardHeader />
+          
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-black text-white min-h-screen">
+            {/* Greeting Header Section */}
+            <div className="mt-4 sm:mt-6 mb-6 sm:mb-8 px-2 sm:px-0">
+              {/* Greeting Message with integrated time */}
+              <GreetingWithProfile 
+                email={user?.email}
+                className="w-full"
+              />
             </div>
-            
-            {/* Floating Bookmark Button */}
-            <FloatingBookmarkButton />
-          </SidebarInset>
-        </SidebarProvider>
-      </BookmarkCreationProvider>
-    </UserProvider>
+
+            {/* Dashboard Content */}
+            <DashboardContent workspaceId={workspaceId} />
+          </div>
+          
+          {/* Floating Bookmark Button */}
+          <FloatingBookmarkButton />
+        </SidebarInset>
+      </SidebarProvider>
+    </BookmarkCreationProvider>
   )
 }

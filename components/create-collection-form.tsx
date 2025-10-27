@@ -82,14 +82,14 @@ export function CreateCollectionForm({ userId: _userId, workspaceId }: CreateCol
       }
 
       const result = await response.json();
-      
+
       toast.success("Collection created successfully!", {
         description: `"${result.folder.name}" is ready for your bookmarks`,
       });
 
       // Redirect to the new collection
       router.push(`/collections/${result.folder.id}`);
-      
+
     } catch (error) {
       console.error("Collection creation error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to create collection";
@@ -168,11 +168,10 @@ export function CreateCollectionForm({ userId: _userId, workspaceId }: CreateCol
                         <button
                           key={color.value}
                           type="button"
-                          className={`w-8 h-8 rounded-full border-2 transition-all ${
-                            field.value === color.value
-                              ? 'border-white scale-110'
-                              : 'border-gray-600 hover:border-gray-400'
-                          }`}
+                          className={`w-8 h-8 rounded-full border-2 transition-all ${field.value === color.value
+                            ? 'border-white scale-110'
+                            : 'border-gray-600 hover:border-gray-400'
+                            }`}
                           style={{ backgroundColor: color.value }}
                           onClick={() => field.onChange(color.value)}
                           title={color.name}

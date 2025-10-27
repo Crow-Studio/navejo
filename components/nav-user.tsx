@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import {
-  Bell,
+  // Bell,
   ChevronsUpDown,
-  CreditCard,
+  // CreditCard,
   LogOut,
-  Sparkles,
-  Settings,
+  // Sparkles,
+  // Settings,
   User,
 } from "lucide-react"
 
@@ -44,7 +44,7 @@ export function NavUser({
   }
 }) {
   const { user: contextUser } = useUser()
-  
+
   // Use context user if available and has data, fallback to initial user
   const user = (contextUser && contextUser.name && contextUser.email) ? {
     name: contextUser.name,
@@ -112,12 +112,12 @@ export function NavUser({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-zinc-800" />
-              <DropdownMenuGroup>
+              {/* <DropdownMenuGroup>
                 <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <Sparkles className="text-yellow-500" />
                   Upgrade to Pro
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
+              </DropdownMenuGroup> */}
               <DropdownMenuSeparator className="bg-zinc-800" />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
@@ -126,23 +126,23 @@ export function NavUser({
                     Profile
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
+                {/* <DropdownMenuItem asChild className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <a href="/settings">
                     <Settings className="text-gray-400" />
                     Settings
                   </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
+                </DropdownMenuItem> */}
+                {/* <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <CreditCard className="text-green-400" />
                   Billing
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer">
                   <Bell className="text-orange-400" />
                   Notifications
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-zinc-800" />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="text-red-400 hover:bg-red-900/20 hover:text-red-300 cursor-pointer"
                 onClick={handleLogoutClick}
               >

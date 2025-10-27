@@ -49,12 +49,12 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
         throw new Error("Failed to update profile")
       }
 
-      // Update the user context with new data
+      // Update the user context with new data immediately for responsive UI
       updateUser({
-        name: formData.displayName,
+        name: formData.displayName || user.email.split('@')[0],
       })
 
-      // Refresh user data from server to get latest state
+      // Refresh user data from server to get latest state and sync everywhere
       await refreshUser()
 
       toast.success("Profile updated successfully!")

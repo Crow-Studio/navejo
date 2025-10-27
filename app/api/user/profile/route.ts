@@ -47,9 +47,6 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  let user: any = null
-  let body: any = null
-  
   try {
     // Get the session token from cookies
     const cookiesStore = await cookies()
@@ -63,8 +60,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Validate the session and get user data
-    const sessionResult = await validateSessionToken(sessionToken)
-    user = sessionResult.user
+    const { user } = await validateSessionToken(sessionToken)
     
     if (!user) {
       return NextResponse.json(
@@ -73,7 +69,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    body = await request.json()
+    const body = await request.json()
     const { displayName, bio, isPublic } = body
 
     console.log('Profile update request:', { userId: user.id, body })
